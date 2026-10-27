@@ -109,3 +109,20 @@ def short(error: str, limit: int = 240) -> str:
 
 def last_log(job: dict, n: int = 3) -> list[str]:
     return [f"  {line}" for line in (job.get("log") or "").strip().splitlines()[-n:] if line.strip()]
+
+
+def project(p: dict) -> str:
+    """A project: the channel, its brief, one line per variant and per character."""
+    head = f"{p['id']} — {p['name']} ({p['platform']}{' ' + p['handle'] if p.get('handle') else ''})"
+    out = [head] + ([f"  brief: {p['brief']}"] if p.get("brief") else []) + ["  variants:"]
+    for v in p["variants"]:
+        keys = ("format", "render_mode", "style", "language", "duration", "voice", "cast", "hashtags")
+        settings = ", ".join(f"{k} {v[k]}" for k in keys if v.get(k) not in (None, "", []))
+        out.append(f"    {v['id']} — {v['name']}: {settings or 'owner defaults'}")
+    if p["cast"]:
+        out.append("  cast:")
+        out += [
+            f"    {c['id']} — {c['name']}: {c['looks'] or '(looks from refs)'}, {len(c['refs'])} refs"
+            for c in p["cast"]
+        ]
+    return "\n".join(out)

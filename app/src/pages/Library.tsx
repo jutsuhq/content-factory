@@ -1,6 +1,6 @@
 import { Clapperboard, Film, Plus } from '../icons'
 import { useState } from 'react'
-import { episodeFile, type Episode, type Status } from '../api'
+import { episodeFile, type Episode, type Project, type Status } from '../api'
 import { useApp } from '../App'
 import { Button, Empty, Progress, STAGES, StatusBadge, activeJob, ago, cx } from '../ui'
 
@@ -19,11 +19,15 @@ const heading = (group: Episode[]) => {
   return originals > 1 ? `Series · ${originals} episodes` : `One video · ${group.length} languages`
 }
 
-export function Library() {
-  const { episodes, compose } = useApp()
+/** Every video, or one channel's when `project` is given (inside its page, so without a heading of its own). */
+export function Library({ project }: { project?: Project }) {
+  const { episodes: all, compose, projects } = useApp()
+  const episodes = project ? all.filter((e) => e.project === project.id) : all
+  const newVideo = () => compose(project ? { project: project.id } : undefined)
   const [filter, setFilter] = useState('all')
   const f = FILTERS.find((x) => x.id === filter)!
   const shown = episodes.filter((e) => f.match(e.status))
+  const channel = (e: Episode) => (project ? undefined : projects.find((p) => p.id === e.project))
 
   // Group episodes of one series under its first episode's title.
   const series = new Map<string, Episode[]>()
@@ -32,11 +36,13 @@ export function Library() {
   const singles = [...series.values()].filter((g) => g.length === 1).flat()
 
   return (
-    <div className="mx-auto max-w-7xl px-8 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-display text-[40px]">My videos</h1>
-        <Button variant="primary" onClick={() => compose()}><Plus size={16} /> New video</Button>
-      </div>
+    <div className={project ? '' : 'mx-auto max-w-7xl px-8 py-8'}>
+      {!project && (
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="font-display text-[40px]">All videos</h1>
+          <Button variant="primary" onClick={newVideo}><Plus size={16} /> New video</Button>
+        </div>
+      )}
       <div className="mb-6 flex gap-1.5">
         {FILTERS.map((x) => {
           const n = episodes.filter((e) => x.match(e.status)).length
@@ -49,15 +55,15 @@ export function Library() {
         })}
       </div>
       {!shown.length ? (
-        <Empty icon={<Clapperboard />} title="Nothing here yet" text="Type a topic and a script will be ready for review in a couple of minutes." action={<Button variant="primary" onClick={() => compose()}>New video</Button>} />
+        <Empty icon={<Clapperboard />} title="Nothing here yet" text="Type a topic and a script will be ready for review in a couple of minutes." action={<Button variant="primary" onClick={newVideo}>New video</Button>} />
       ) : (
         <div className="space-y-10">
-          {singles.length > 0 && <div className={GRID}>{singles.map((e) => <Card key={e.slug} e={e} />)}</div>}
+          {singles.length > 0 && <div className={GRID}>{singles.map((e) => <Card key={e.slug} e={e} channel={channel(e)} />)}</div>}
           {groups.map((group) => (
             <section key={group[0].series ?? group[0].slug}>
               <h2 className="eyebrow mb-3">{heading(group)}</h2>
               <div className={GRID}>
-                {[...group].sort((a, b) => (a.episode_index ?? 1) - (b.episode_index ?? 1)).map((e) => <Card key={e.slug} e={e} />)}
+                {[...group].sort((a, b) => (a.episode_index ?? 1) - (b.episode_index ?? 1)).map((e) => <Card key={e.slug} e={e} channel={channel(e)} />)}
               </div>
             </section>
           ))}
@@ -67,7 +73,7 @@ export function Library() {
   )
 }
 
-function Card({ e }: { e: Episode }) {
+function Card({ e, channel }: { e: Episode; channel?: Project }) {
   const { jobs } = useApp()
   const job = activeJob(jobs, e.slug)
   return (
@@ -97,7 +103,10 @@ function Card({ e }: { e: Episode }) {
       </div>
       <div className="px-3 py-2.5">
         <div className="line-clamp-2 text-sm font-medium leading-snug">{e.title}</div>
-        <div className="mt-1 text-xs text-muted">{ago(e.updated ?? e.created)}</div>
+        <div className="mt-1 flex items-center gap-1.5 text-xs text-muted">
+          {channel && <><span className="size-2 shrink-0 rounded-full" style={{ background: channel.color }} /><span className="truncate">{channel.name}</span>·</>}
+          <span className="shrink-0">{ago(e.updated ?? e.created)}</span>
+        </div>
       </div>
     </a>
   )

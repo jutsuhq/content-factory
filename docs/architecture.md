@@ -48,6 +48,14 @@ camera and one entry per beat. Stages read it and write their results under `wor
 holding the hash of its input. Running a stage again with the same input is a no-op; editing one beat rebuilds only
 that beat. The finished video is `out/<slug>.mp4` with `out/qa.json` next to it.
 
+### Projects
+
+A project is a channel: `projects/<id>/project.json` in DATA holds its details, its variants and its cast, and
+`projects/<id>/cast/<character>/` its characters' reference images (`core/projects.py`). Composing with `project` and
+`variant` takes the variant's settings where the call and the script give none, and writes `project` and `cast` (the
+characters' ids) into `beats.json`, `project` and `variant` into `meta.json`. The frames stage adds the characters'
+looks to every prompt and their first three images to every frame's references.
+
 ### Jobs
 
 Long work runs in a queue (`jobs.py`, SQLite). The app subscribes to its event stream; agents wait on a job with

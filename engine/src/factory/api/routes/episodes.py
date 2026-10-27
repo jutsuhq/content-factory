@@ -12,7 +12,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from factory import jobs, stages
-from factory.core import EPISODES, LANGUAGES, defaults, desktop, formats, storage
+from factory.core import EPISODES, LANGUAGES, defaults, desktop, formats, projects, storage
 from factory.studio import compose, store, translate
 from factory.studio import storage as disk
 
@@ -37,6 +37,32 @@ class ComposeIn(BaseModel):
     script: dict | None = None  # a finished beats.json (an agent wrote it); without it the script starts empty
     format: str | None = None  # None: the script's own, else the owner's default
     render_mode: str | None = None  # for an empty script: one of the format's render modes, None for its first
+    project: str | None = None  # the channel the video is for: its variant's settings replace the owner's defaults
+    variant: str | None = None  # one of the project's variants, None for its first
+    cast: list[str] | None = None  # ids of the project's characters in the video, None for the variant's
+
+
+def _in_project(body: ComposeIn, d: dict) -> tuple[ComposeIn, dict, dict, list[str]]:
+    """For a video of a project: the call with its variant's settings filled in where neither the call nor the
+    script gives them, the defaults with the variant's, the variant and the cast."""
+    if not body.project:
+        return body, d, {}, []
+    try:
+        project = projects.load(body.project)
+        v = projects.variant(project, body.variant)
+    except KeyError:
+        raise HTTPException(404, "no such project or variant") from None
+    cast = v.get("cast", []) if body.cast is None else body.cast
+    if unknown := [c for c in cast if c not in {c["id"] for c in project["cast"]}]:
+        raise HTTPException(400, f"no such character in the project: {', '.join(unknown)}")
+    script = body.script or {}
+    fill = {
+        k: v.get(k)
+        for k in ("format", "render_mode", "style", "style_prompt")
+        if getattr(body, k) is None and not script.get(k)
+    }
+    d = {**d, **{k: v[k] for k in ("language", "duration", "voice") if k in v}}
+    return body.model_copy(update=fill), d, v, cast
 
 
 @router.post("/compose")
@@ -44,7 +70,7 @@ def compose_episode(body: ComposeIn) -> dict:
     """A new episode waiting at the script step: the given script, or an empty one to fill in."""
     if not body.topic.strip() or len(body.topic) > 2000:
         raise HTTPException(400, "topic must be 1-2000 characters")
-    d = defaults()
+    body, d, v, cast = _in_project(body, defaults())
     language = (body.script or {}).get("language") or body.language or d["language"]
     if language not in LANGUAGES:
         raise HTTPException(400, f"language must be one of {', '.join(LANGUAGES)}")
@@ -76,6 +102,8 @@ def compose_episode(body: ComposeIn) -> dict:
             script = compose.blank(body.topic, duration, style, body.style_prompt, voice, language, mode, fmt["id"])
         except ValueError as e:
             raise HTTPException(400, str(e)) from None
+    if body.project:
+        script |= {"project": body.project, "cast": cast}
     issues = compose.problems(script)
     if any(i.startswith("schema") for i in issues):
         raise HTTPException(400, "; ".join(issues))
@@ -101,13 +129,15 @@ def compose_episode(body: ComposeIn) -> dict:
         duration=duration,
         language=language,
         created=time.time(),
+        **({"project": body.project, "variant": v["id"]} if body.project else {}),
     )
     return {"slug": slug, "warnings": [i for i in issues if not i.startswith("schema")]}
 
 
 @router.get("/episodes")
-def episodes() -> list[dict]:
-    return store.list_episodes()
+def episodes(project: str | None = None) -> list[dict]:
+    """Every episode, or a project's only."""
+    return [e for e in store.list_episodes() if not project or e.get("project") == project]
 
 
 @router.get("/episodes/{slug}")

@@ -40,6 +40,8 @@ export type Episode = {
   sent?: number
   language?: string
   translation_of?: string
+  project?: string // the channel it was made for
+  variant?: string // which of the channel's variants
   beats: Beats | null
   frames: string[]
   video: string | null
@@ -116,7 +118,41 @@ export type ComposeIn = {
   series?: string | null
   format?: string
   render_mode?: string
+  project?: string | null
+  variant?: string | null
+  cast?: string[] | null
 }
+
+/** A ready set of settings for one kind of video on a channel; what it leaves unset comes from Settings. */
+export type Variant = {
+  id: string
+  name: string
+  format?: string
+  render_mode?: string
+  style?: string
+  style_prompt?: string
+  language?: string
+  voice?: boolean
+  duration?: number
+  cast?: string[] // characters in every video of this variant, unless the video picks others
+  hashtags?: string
+}
+/** A recurring character: its looks go into every frame prompt, its reference images with every frame. */
+export type Character = { id: string; name: string; looks: string; refs: string[] }
+export type Platform = 'tiktok' | 'youtube' | 'instagram' | 'other'
+/** A channel: the space its videos are made in, so they stay consistent. */
+export type Project = {
+  id: string
+  name: string
+  platform: Platform
+  handle: string
+  color: string
+  brief: string // what the channel is about, for whoever writes its scripts
+  variants: Variant[]
+  cast: Character[]
+  created?: number
+}
+export const PLATFORMS: Record<Platform, string> = { tiktok: 'TikTok', youtube: 'YouTube Shorts', instagram: 'Instagram Reels', other: 'Other' }
 
 export type Defaults = { language: string; format: string; style: string; duration: number; voice: boolean }
 export type Settings = {
@@ -183,6 +219,17 @@ let formatsOnce: Promise<Format[]> | null = null
 export const api = {
   health: () => call<{ ok: boolean; root: string; version: string }>('/api/health'),
   episodes: () => call<Episode[]>('/api/episodes'),
+  projects: () => call<Project[]>('/api/projects'),
+  createProject: (body: Partial<Project>) => post<Project>('/api/projects', body),
+  saveProject: (p: Project) => put<Project>(`/api/projects/${p.id}`, p),
+  removeProject: (id: string) => call<{ ok: boolean }>(`/api/projects/${id}`, { method: 'DELETE' }),
+  addRef: (id: string, cid: string, file: File) => {
+    const body = new FormData()
+    body.append('file', file)
+    return call<Project>(`/api/projects/${id}/cast/${cid}/refs`, { method: 'POST', body })
+  },
+  removeRef: (id: string, cid: string, ref: string) =>
+    call<Project>(`/api/projects/${id}/cast/${cid}/refs/${ref.split('/').pop()}`, { method: 'DELETE' }),
   episode: (slug: string) => call<Episode>(`/api/episodes/${slug}`),
   /** Every format, the default one first. Formats are files shipped with the engine, so one fetch serves the session. */
   formats: () => (formatsOnce ??= call<Format[]>('/api/formats').catch((e) => { formatsOnce = null; throw e })),

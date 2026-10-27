@@ -2,6 +2,8 @@
 with prompts/next_frame.txt.
 
 The first frame sets the look and is made alone; the rest are edits of it and run in parallel.
+A script of a project may name characters of its cast (`project`, `cast`): every prompt then describes them and every
+frame gets their reference images, so they look the same in every video of the channel.
 Each frame is cached by its prompt and references, so editing one beat regenerates one frame.
 """
 
@@ -10,7 +12,7 @@ from __future__ import annotations
 import yaml
 from PIL import Image
 
-from factory.core import Episode, digest, fresh, mark
+from factory.core import Episode, digest, fresh, mark, projects
 from factory.providers.image import ImageJob, run_jobs
 
 ASPECT = 9 / 16
@@ -28,6 +30,18 @@ def crop_916(src, dst) -> None:
     im.save(dst)
 
 
+def _cast(ep: Episode) -> tuple[str, list]:
+    """What every prompt adds about the script's characters, and their reference images."""
+    cast = projects.characters(ep.beats["project"], ep.beats.get("cast") or []) if ep.beats.get("project") else []
+    if not cast:
+        return "", []
+    files = [f for c in cast for f in c["files"]]
+    lines = [f"- {c['name']}: {c['looks'] or 'as in the reference images'}" for c in cast]
+    lead = "Recurring characters; when one appears, draw them exactly as described"
+    lead += " and as in the attached reference images, same face, hair and clothes" if files else ""
+    return f"\n\n{lead}:\n" + "\n".join(lines), files
+
+
 def _prompts(ep: Episode) -> list[str]:
     b = ep.beats
     presets = yaml.safe_load((ep.format_dir / "styles.yaml").read_text(encoding="utf-8"))
@@ -36,25 +50,29 @@ def _prompts(ep: Episode) -> list[str]:
     edit = (ep.format_dir / "prompts" / "next_frame.txt").read_text(encoding="utf-8").strip()
     # the format's prompt templates name script and beat fields as {field}; {style} is the style text
     top = {k: v for k, v in b.items() if k != "beats"}
-    return [first.format_map({**top, **b["beats"][0], "style": style})] + [
-        edit.format_map({**top, **beat, "style": style}) for beat in b["beats"][1:]
+    cast = _cast(ep)[0]
+    return [first.format_map({**top, **b["beats"][0], "style": style}) + cast] + [
+        edit.format_map({**top, **beat, "style": style}) + cast for beat in b["beats"][1:]
     ]
 
 
 def run(ep: Episode, profile: dict) -> None:
     d = ep.work("frames")
     prompts = _prompts(ep)
+    cast = _cast(ep)[1]
     raw = [d / f"{i:02d}.png" for i in range(1, len(prompts) + 1)]
 
-    keys = [digest(prompts[0])]
+    keys = [digest(prompts[0], *cast)]
     if not fresh(raw[0], keys[0]):
-        errors = run_jobs([ImageJob(prompts[0], raw[0])], profile["providers"]["image"])
+        errors = run_jobs([ImageJob(prompts[0], raw[0], refs=cast)], profile["providers"]["image"])
         if errors:
             raise SystemExit("style frame failed: " + errors[0])
         mark(raw[0], keys[0])
 
-    keys += [digest(p, raw[0]) for p in prompts[1:]]
-    todo = [ImageJob(prompts[i], raw[i], refs=[raw[0]]) for i in range(1, len(raw)) if not fresh(raw[i], keys[i])]
+    keys += [digest(p, raw[0], *cast) for p in prompts[1:]]
+    todo = [
+        ImageJob(prompts[i], raw[i], refs=[raw[0], *cast]) for i in range(1, len(raw)) if not fresh(raw[i], keys[i])
+    ]
     print(f"frames: {len(raw) - len(todo)} cached, {len(todo)} to make", flush=True)
     errors = run_jobs(todo, profile["providers"]["image"])
     for i in range(1, len(raw)):

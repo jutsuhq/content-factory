@@ -1,16 +1,22 @@
 import { ImagePlus, Loader2, Mic, MicOff, PenNib, Sparkles } from '../icons'
 import { useEffect, useState } from 'react'
-import { api, type ComposeIn, type Format, type ImageProvider, type Settings, type Style, type Voice } from '../api'
+import { api, type ComposeIn, type Format, type ImageProvider, type Settings, type Style, type Variant, type Voice } from '../api'
 import { useApp } from '../App'
 import { Button, Field, Modal, cx, inputCls } from '../ui'
+import { Avatar, CastPick } from './Project'
 
 // icons a format's render mode may name (format.yaml `render_modes.<mode>.icon`)
 const ICONS: Record<string, typeof ImagePlus> = { image: ImagePlus, pen: PenNib }
 
-/** "New video": format, topic, style, language, length, narration. It opens the episode with an empty script to fill in;
- * Claude can write one instead over MCP. */
+/** "New video": channel and variant, format, topic, style, language, length, narration, who is in it. It opens the
+ * episode with an empty script to fill in; Claude can write one instead over MCP. */
 export function Composer({ prefill, onClose }: { prefill: Partial<ComposeIn>; onClose: () => void }) {
-  const { go, refresh, episodes } = useApp()
+  const { go, refresh, episodes, projects, project: picked } = useApp()
+  // the channel the sidebar has picked, unless the caller names one (or none, with null)
+  const [projectId, setProjectId] = useState(prefill.project !== undefined ? prefill.project ?? '' : picked?.id ?? '')
+  const project = projects.find((p) => p.id === projectId) ?? null
+  const [variant, setVariant] = useState(prefill.variant ?? '')
+  const [cast, setCast] = useState<string[]>(prefill.cast ?? [])
   const [formats, setFormats] = useState<Format[]>([])
   const [format, setFormat] = useState(prefill.format ?? '')
   const [styles, setStyles] = useState<Style[]>([])
@@ -43,8 +49,27 @@ export function Composer({ prefill, onClose }: { prefill: Partial<ComposeIn>; on
       setLanguage((v) => v || d.language)
       if (prefill.duration === undefined) setDuration(d.duration)
       if (prefill.voice === undefined) setVoice(d.voice)
+      // a channel's variant fills in over the defaults; a series continued keeps its own settings
+      const v = project?.variants.find((x) => x.id === prefill.variant) ?? project?.variants[0]
+      if (v && !prefill.series) apply(v)
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps -- once per open
+  const apply = (v: Variant) => {
+    setVariant(v.id)
+    if (v.format) setFormat(v.format)
+    if (v.render_mode) setMode(v.render_mode)
+    if (v.style_prompt) { setStyle('custom'); setStylePrompt(v.style_prompt) } else if (v.style) { setStyle(v.style); setLook(v.style) }
+    if (v.language) setLanguage(v.language)
+    if (v.duration) setDuration(v.duration)
+    if (v.voice !== undefined) setVoice(v.voice)
+    setCast(v.cast ?? [])
+  }
+  const pickProject = (id: string) => {
+    setProjectId(id)
+    const p = projects.find((x) => x.id === id)
+    if (p) apply(p.variants[0])
+    else { setVariant(''); setCast([]) }
+  }
   const fmt = formats.find((f) => f.id === format)
   const m = fmt?.render_modes[mode]
   const looks = m && typeof m.style === 'object' ? m.style.looks : null // a fixed list instead of the style presets
@@ -87,6 +112,9 @@ export function Composer({ prefill, onClose }: { prefill: Partial<ComposeIn>; on
         voice,
         language,
         series: prefill.series ?? null,
+        project: project?.id ?? null,
+        variant: project ? variant || null : null,
+        cast: project ? cast : null,
       })
       refresh()
       onClose()
@@ -102,6 +130,22 @@ export function Composer({ prefill, onClose }: { prefill: Partial<ComposeIn>; on
     <Modal open onClose={onClose} title={series ? `Next episode: ${series.title}` : 'New video'} wide>
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="space-y-5">
+          {projects.length > 0 && !series && (
+            <div className="flex flex-wrap items-center gap-2">
+              {project && <Avatar p={project} size={28} />}
+              <select value={projectId} onChange={(e) => pickProject(e.target.value)} aria-label="Channel"
+                className="h-8 rounded-full border border-line bg-raised px-3 text-sm outline-none">
+                <option value="">No channel</option>
+                {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              {project && project.variants.length > 1 && project.variants.map((v) => (
+                <button key={v.id} type="button" onClick={() => apply(v)}
+                  className={cx('h-8 rounded-full border px-3 text-sm transition', variant === v.id ? 'border-accent bg-accent/10 text-text' : 'border-line text-muted hover:text-text')}>
+                  {v.name}
+                </button>
+              ))}
+            </div>
+          )}
           <Field label="Topic or title" hint={<span className="tabular">{topic.length}/2000</span>}>
             <textarea
               autoFocus
@@ -113,6 +157,13 @@ export function Composer({ prefill, onClose }: { prefill: Partial<ComposeIn>; on
               className={cx(inputCls, 'resize-none text-base')}
             />
           </Field>
+
+          {project && project.cast.length > 0 && (
+            <div className="space-y-1.5">
+              <div className="text-xs font-medium text-muted">Who is in it: their looks and images go with every frame</div>
+              <CastPick cast={project.cast} value={cast} onChange={setCast} />
+            </div>
+          )}
 
           {formats.length > 1 ? (
             <Field label="Format">

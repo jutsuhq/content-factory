@@ -49,10 +49,15 @@ def test_create_passes_every_option_to_the_shared_command(monkeypatch, capsys, t
         "--no-voice",
         "--duration",
         "40",
+        "--project",
+        "kids",
+        "--cast",
+        "boy,dog",
     )
     assert out == "created"
-    topic, beats, language, duration, style, voice, series, style_prompt, fmt = seen["args"]
+    topic, beats, language, duration, style, voice, series, style_prompt, fmt, project, variant, cast = seen["args"]
     assert (topic, beats, duration, voice, fmt) == ("Moon", {"hook": "h"}, 40, False, "fmt")
+    assert (project, variant, cast) == ("kids", None, ["boy", "dog"])
     assert (language, style, series, style_prompt) == (None, None, None, None)
 
 

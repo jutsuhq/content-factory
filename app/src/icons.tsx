@@ -7,6 +7,7 @@ import {
   ArrowsClockwiseIcon as ArrowsClockwise,
   ArrowSquareOutIcon as ArrowSquareOut,
   CaretDownIcon as CaretDown,
+  CaretUpDownIcon as CaretUpDown,
   CheckIcon as PhCheck,
   CheckCircleIcon as CheckCircle,
   CircleNotchIcon as CircleNotch,
@@ -29,11 +30,14 @@ import {
   PlayIcon as PhPlay,
   QueueIcon as PhQueue,
   PlusIcon as PhPlus,
+  SlidersHorizontalIcon as SlidersHorizontal,
   SparkleIcon as Sparkle,
+  SquaresFourIcon as SquaresFour,
   StopIcon as Stop,
   TerminalWindowIcon as TerminalWindow,
   TranslateIcon as Translate,
   TrashIcon as Trash,
+  UsersThreeIcon as UsersThree,
   WarningIcon as Warning,
   WifiSlashIcon as WifiSlash,
   XIcon as PhX,
@@ -54,6 +58,7 @@ export const Key = duo(PhKey)
 export const Terminal = duo(TerminalWindow)
 export const Check = duo(PhCheck, 'bold')
 export const ChevronDown = duo(CaretDown, 'bold')
+export const ChevronsUpDown = duo(CaretUpDown, 'bold')
 export const CircleCheck = duo(CheckCircle)
 export const Clapperboard = duo(FilmSlate)
 export const CircleX = duo(XCircle)
@@ -77,10 +82,13 @@ export const Play = duo(PhPlay)
 export const Plus = duo(PhPlus, 'bold')
 export const RefreshCw = duo(ArrowsClockwise)
 export const Save = duo(FloppyDisk)
+export const Sliders = duo(SlidersHorizontal)
 export const Sparkles = duo(Sparkle)
+export const Grid = duo(SquaresFour)
 export const Square = duo(Stop)
 export const Trash2 = duo(Trash)
 export const TriangleAlert = duo(Warning)
+export const Users = duo(UsersThree)
 export const WifiOff = duo(WifiSlash)
 export const X = duo(PhX, 'bold')
 

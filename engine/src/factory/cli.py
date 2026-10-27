@@ -37,6 +37,7 @@ def main() -> None:
     p = sub.add_parser("episodes", help="episodes, newest first")
     p.add_argument("--status", help="draft, script, generating, review, done or failed")
     p.add_argument("--limit", type=int, default=20)
+    p.add_argument("--project", help="a project id, its episodes only")
     p = sub.add_parser("episode", help="one episode: script, video, quality check, next step")
     p.add_argument("slug")
     p.add_argument("--full", action="store_true", help="include the image prompts")
@@ -50,6 +51,9 @@ def main() -> None:
     p.add_argument("--style-prompt")
     p.add_argument("--voice", action=argparse.BooleanOptionalAction, default=None)
     p.add_argument("--series", help="slug of an episode to continue")
+    p.add_argument("--project", help="a project id from `factory catalog projects`")
+    p.add_argument("--variant", help="one of the project's variants, its first by default")
+    p.add_argument("--cast", help="comma-separated character ids, the variant's by default")
     p = sub.add_parser("edit", help="merge changes into a script")
     p.add_argument("slug")
     p.add_argument("changes", help='JSON, e.g. {"hook": "...", "beats": {"2": {"vo": "..."}}}; a file or - for stdin')
@@ -67,8 +71,8 @@ def main() -> None:
     p = sub.add_parser("accept", help="mark the video done and keep its post caption")
     p.add_argument("slug")
     p.add_argument("--caption", default="")
-    p = sub.add_parser("catalog", help="formats and how to write them, styles, music, voices")
-    p.add_argument("kind", choices=["format", "styles", "music", "voices"])
+    p = sub.add_parser("catalog", help="formats and how to write them, styles, music, voices, projects")
+    p.add_argument("kind", choices=["format", "styles", "music", "voices", "projects"])
     p.add_argument("--format")
     p.add_argument("--language", default="en")
 
@@ -131,7 +135,7 @@ def _command(args) -> str:
     if args.cmd == "status":
         return server.status()
     if args.cmd == "episodes":
-        return server.episodes(args.status, args.limit)
+        return server.episodes(args.status, args.limit, args.project)
     if args.cmd == "episode":
         return server.episode(args.slug, args.full)[0]
     if args.cmd == "create":
@@ -145,6 +149,9 @@ def _command(args) -> str:
             args.series,
             args.style_prompt,
             args.format,
+            args.project,
+            args.variant,
+            args.cast.split(",") if args.cast else None,
         )
     if args.cmd == "edit":
         return server.edit_script(args.slug, _json(args.changes) or {})

@@ -97,6 +97,9 @@ trademark of its owner.
 
 ## What it does
 
+- **Channels:** a project per TikTok, YouTube or Instagram account keeps its videos alike. A channel has variants
+  (ready settings for one kind of video: format, style, language, voice, length, hashtags) and a cast of recurring
+  characters whose looks text and reference images go with every frame, so they look the same in every video.
 - **New video:** format, topic, style, language, length (within the format's limits), narration or on-screen text
   only.
 - **Script editor:** the format's fields per beat (for *What if*: counter, caption, narration and image state),
@@ -173,6 +176,7 @@ uv run factory doctor                      # detect the machine, write profile.y
 uv run factory setup all                   # renderer, RIFE, depth model, music
 uv run factory catalog format              # formats and how to write a script in one
 uv run factory create "<topic>" --script beats.json
+uv run factory create "<topic>" --project <id> --variant <id> --cast milo,biscuit
 uv run factory run <slug> approve          # make the video, wait for the job
 uv run factory run <slug> rebuild --stages render
 uv run factory accept <slug>
@@ -192,8 +196,9 @@ claude mcp add -s user content-factory -- uv run --project /path/to/content-fact
 ```
 
 Tools: `status`, `episodes`, `episode`, `create`, `edit_script`, `run` (approve, rebuild, redo a frame, translate),
-`job`, `accept`, `catalog` (format, styles, music, voices). Then ask Claude something like *"make a What if video
-about falling into Jupiter, 70 seconds, space epic style"*.
+`job`, `accept`, `catalog` (format, styles, music, voices, projects). Then ask Claude something like *"make a What if
+video about falling into Jupiter, 70 seconds, space epic style"*, or *"two new videos for Tiny Town Tales, English
+variant, with Milo"*: `catalog('projects')` gives the channel's brief, variants and cast.
 
 ## Repository layout
 

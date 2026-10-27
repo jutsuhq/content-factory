@@ -1,7 +1,7 @@
 """Where things live. ROOT is the repository (a checkout, or the app's read-only resources): engine/, formats/,
-render/. DATA is everything the engine writes: episodes, the machine profile, the queue, models, tools, music files,
-keys. In a checkout DATA is data/ in the repository, ignored by git; the desktop app points it at the user's
-application-data folder with CF_DATA."""
+render/. DATA is everything the engine writes: episodes, projects, the machine profile, the queue, models, tools,
+music files, keys. In a checkout DATA is data/ in the repository, ignored by git; the desktop app points it at the
+user's application-data folder with CF_DATA."""
 
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ ENGINE = ROOT / "engine"  # the Python project: pyproject.toml, uv.lock, src/
 DATA = Path(os.environ.get("CF_DATA") or ROOT / "data")
 FORMATS = ROOT / "formats"
 EPISODES = DATA / "episodes"
+PROJECTS = DATA / "projects"
 PROFILE = DATA / "profile.yaml"
 SECRETS = DATA / ".env"
 MODELS = DATA / "models"

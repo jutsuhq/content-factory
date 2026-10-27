@@ -1,11 +1,12 @@
-import { NavExplore, NavQueue, NavSettings, NavVideos, NavVoice, Plus, WifiOff } from './icons'
+import { NavExplore, NavQueue, NavSettings, NavVideos, NavVoice, Plus, Sliders, Users, WifiOff } from './icons'
 import { EngineDown, Onboarding } from './pages/Setup'
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { api, subscribeJobs, type ComposeIn, type Episode, type Job, type Settings } from './api'
+import { api, subscribeJobs, type ComposeIn, type Episode, type Job, type Project, type Settings } from './api'
 import { Composer } from './pages/Composer'
 import { EpisodePage } from './pages/Episode'
 import { Explore } from './pages/Explore'
 import { Library } from './pages/Library'
+import { NewProject, ProjectPage, Projects, Switcher } from './pages/Project'
 import { Queue } from './pages/Queue'
 import { SettingsPage } from './pages/Settings'
 import { VoicePage } from './pages/Voice'
@@ -14,6 +15,9 @@ import { Button, cx } from './ui'
 type Ctx = {
   episodes: Episode[]
   jobs: Job[]
+  projects: Project[]
+  project: Project | null // the channel picked in the sidebar; new videos go to it
+  reloadProjects: () => Promise<void>
   refresh: () => void
   go: (route: string) => void
   compose: (prefill?: Partial<ComposeIn>) => void
@@ -33,7 +37,7 @@ const useHash = () => {
 
 const NAV = [
   { to: '/explore', label: 'Explore', icon: NavExplore },
-  { to: '/videos', label: 'My videos', icon: NavVideos },
+  { to: '/videos', label: 'All videos', icon: NavVideos },
   { to: '/queue', label: 'Queue', icon: NavQueue },
   { to: '/voice', label: 'Voice', icon: NavVoice },
   { to: '/settings', label: 'Settings', icon: NavSettings },
@@ -46,7 +50,20 @@ export default function App() {
   const [online, setOnline] = useState<boolean | null>(null)
   const [composer, setComposer] = useState<Partial<ComposeIn> | null>(null)
   const [settings, setSettings] = useState<Settings | null>(null)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [newProject, setNewProject] = useState(false)
+  const [current, setCurrent] = useState(() => { try { return localStorage.getItem('project') ?? '' } catch { return '' } })
   const timer = useRef<number | undefined>(undefined)
+  const inProject = route.match(/^\/p\/([^/]+)(?:\/(\w+))?/)
+  // the channel stays picked while the owner visits the studio pages, until another one or All channels is chosen
+  useEffect(() => {
+    const id = inProject ? inProject[1] : route === '/projects' || route === '/videos' ? '' : null
+    if (id === null) return
+    setCurrent(id)
+    try { localStorage.setItem('project', id) } catch { /* private window */ }
+  }, [route]) // eslint-disable-line react-hooks/exhaustive-deps -- follows the route
+  const project = projects.find((p) => p.id === current) ?? null
+  const reloadProjects = useCallback(() => api.projects().then(setProjects), [])
 
   const refresh = useCallback(() => {
     api.episodes().then((e) => { setEpisodes(e); setOnline(true) }).catch(() => setOnline(false))
@@ -59,7 +76,7 @@ export default function App() {
     return () => window.clearInterval(id)
   }, [refresh, online])
 
-  useEffect(() => { if (online) api.settings().then(setSettings) }, [online])
+  useEffect(() => { if (online) { api.settings().then(setSettings); reloadProjects() } }, [online, reloadProjects])
 
   useEffect(() => {
     if (!online) return
@@ -75,6 +92,8 @@ export default function App() {
 
   let page
   if (route.startsWith('/episode/')) page = <EpisodePage slug={decodeURIComponent(route.slice(9))} />
+  else if (inProject) page = <ProjectPage id={inProject[1]} tab={inProject[2] ?? ''} />
+  else if (route === '/projects') page = <Projects onNew={() => setNewProject(true)} />
   else if (route === '/videos') page = <Library />
   else if (route === '/queue') page = <Queue />
   else if (route === '/voice') page = <VoicePage />
@@ -82,7 +101,7 @@ export default function App() {
   else page = <Explore />
 
   return (
-    <AppCtx.Provider value={{ episodes, jobs, refresh, go, compose: (p) => setComposer(p ?? {}) }}>
+    <AppCtx.Provider value={{ episodes, jobs, projects, project, reloadProjects, refresh, go, compose: (p) => setComposer(p ?? {}) }}>
       <div className="flex h-full">
         <aside className="flex w-60 shrink-0 flex-col border-r border-line bg-white/[0.025] px-3 py-5">
           <a href="#/explore" className="mb-7 flex items-center gap-2.5 px-1.5">
@@ -92,12 +111,29 @@ export default function App() {
               <div className="eyebrow !text-[10px] !tracking-[0.12em]">local · open source</div>
             </div>
           </a>
+          <Switcher onNew={() => setNewProject(true)} />
           <Button variant="primary" className="mb-5 w-full" onClick={() => setComposer({})}>
             <Plus size={16} /> New video
           </Button>
           <nav className="space-y-0.5">
+            {project && (
+              <>
+                <div className="eyebrow px-2.5 pb-1.5">This channel</div>
+                {[
+                  { to: `/p/${project.id}`, label: 'Videos', icon: NavVideos },
+                  { to: `/p/${project.id}/cast`, label: 'Cast', icon: Users },
+                  { to: `/p/${project.id}/variants`, label: 'Variants', icon: Sliders },
+                ].map(({ to, label, icon: Icon }) => (
+                  <a key={to} href={`#${to}`}
+                    className={cx('flex h-9 items-center gap-2.5 rounded-[9px] px-2.5 text-[13px] font-medium transition', route === to ? 'bg-white/10 text-text' : 'text-muted hover:bg-white/5 hover:text-text')}>
+                    <Icon size={18} className={route === to ? 'nav-active' : undefined} />{label}
+                  </a>
+                ))}
+                <div className="eyebrow px-2.5 pb-1.5 pt-4">Studio</div>
+              </>
+            )}
             {NAV.map(({ to, label, icon: Icon }) => {
-              const active = route === to || (to === '/videos' && route.startsWith('/episode/'))
+              const active = route === to || (to === '/videos' && route.startsWith('/episode/') && !project)
               return (
                 <a
                   key={to}
@@ -135,6 +171,7 @@ export default function App() {
         </main>
       </div>
       {composer && <Composer prefill={composer} onClose={() => setComposer(null)} />}
+      {newProject && <NewProject onClose={() => setNewProject(false)} />}
     </AppCtx.Provider>
   )
 }

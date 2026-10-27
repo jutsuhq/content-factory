@@ -17,6 +17,8 @@ from factory.studio import compose
 
 INSTRUCTIONS = """Content Factory makes faceless short videos on this machine: AI frames from an image API, depth
 parallax, local voice, CC0 music, Remotion render. The factory does not write scripts: you write them from the owner's
+brief. Videos usually belong to a project, the owner's channel: catalog('projects') lists them with their variants
+(ready settings) and cast (recurring characters); pass project, variant and cast to create and follow the project's
 brief. Flow: catalog('format') once for the formats and their rules -> create(topic, script, format) -> show the owner
 the script, edit_script on feedback -> run('approve') -> job(id) until done -> episode(slug) gives the video path and
 the quality check -> accept once the owner is happy with it. Posting is the owner's job: give them the file path.
@@ -72,10 +74,10 @@ def status() -> str:
 
 
 @server.tool(annotations=READ, structured_output=False)
-def episodes(status: str | None = None, limit: int = 20) -> str:
+def episodes(status: str | None = None, limit: int = 20, project: str | None = None) -> str:
     """Episodes, newest first, one line each: slug · status · language · length · title.
-    status filters: draft, script, generating, review, done, failed."""
-    eps = [e for e in engine.call("GET", "/api/episodes") if not status or e["status"] == status]
+    status filters: draft, script, generating, review, done, failed. project: a project id, its episodes only."""
+    eps = [e for e in engine.call("GET", "/api/episodes", project=project) if not status or e["status"] == status]
     lines = [view.episode_line(e) for e in eps[:limit]]
     if len(eps) > limit:
         lines.append(f"… {len(eps) - limit} more")
@@ -129,12 +131,18 @@ def create(
     series: str | None = None,
     style_prompt: str | None = None,
     format: str | None = None,
+    project: str | None = None,
+    variant: str | None = None,
+    cast: list[str] | None = None,
 ) -> str:
     """Start a video. script: the full beats.json you wrote by catalog('format', format=...); without it the episode
     opens with an empty script for the owner to fill in the app. format: a format id from catalog('format'), the
     owner's default when omitted. Unset options take the owner's defaults from Settings.
     style: an id from catalog('styles', format=...), or 'custom' with style_prompt. series: slug of an episode to
-    continue. Several episodes on one topic: call create once per episode with the same series."""
+    continue. Several episodes on one topic: call create once per episode with the same series.
+    project, variant: from catalog('projects'); the variant's settings replace the owner's defaults. cast: ids of
+    the project's characters in the video, the variant's when omitted; their looks go into every frame on their own,
+    so the script only names them."""
     try:
         r = engine.call(
             "POST",
@@ -149,6 +157,9 @@ def create(
                 "voice": voice,
                 "series": series,
                 "format": format,
+                "project": project,
+                "variant": variant,
+                "cast": cast,
             },
         )
     except EngineError as e:
@@ -251,12 +262,14 @@ def accept(slug: str, caption: str = "") -> str:
 
 @server.tool(annotations=READ, structured_output=False)
 def catalog(
-    kind: Literal["format", "styles", "music", "voices"], language: str = "en", format: str | None = None
+    kind: Literal["format", "styles", "music", "voices", "projects"], language: str = "en", format: str | None = None
 ) -> str:
     """format: with a format id, how to write a script in it (rules, fields, a finished example); without one, the
     formats (id — title: description), or the guide itself when there is only one. Read it before your first create.
     styles of a format (id — title, tags; the default format without one), music (id — moods), voices (language —
-    engine, voice)."""
+    engine, voice), projects (the owner's channels: brief, variants with their settings, cast with looks)."""
+    if kind == "projects":
+        return "\n\n".join(map(view.project, engine.call("GET", "/api/projects"))) or "no projects"
     if kind == "format":
         ids = formats.ids()
         if format or len(ids) == 1:

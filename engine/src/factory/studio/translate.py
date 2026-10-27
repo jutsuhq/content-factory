@@ -73,6 +73,7 @@ def translate(slug: str, language: str, texts: dict | None = None) -> str:
         episode_index=m.get("episode_index", 1),
         duration=m.get("duration"),
         created=m.get("created"),
+        **{k: m[k] for k in ("project", "variant") if k in m},
         language=language,
         translation_of=slug,
     )

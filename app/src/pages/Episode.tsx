@@ -111,14 +111,17 @@ function Pipeline({ ep, job }: { ep: Episode; job?: Job }) {
 }
 
 function Review({ ep }: { ep: Episode }) {
-  const { compose, refresh } = useApp()
+  const { compose, refresh, projects } = useApp()
   const b = ep.beats
   const fm = formatOf(useFormats(), b)
+  const tags = projects.find((p) => p.id === ep.project)?.variants.find((v) => v.id === ep.variant)?.hashtags
   const [caption, setCaption] = useState(ep.caption || '')
-  // a new caption starts from the format's caption template, {field} filled from the script
+  // a new caption starts from the format's caption template, {field} filled from the script, and the variant's hashtags
   useEffect(() => {
-    if (!ep.caption && b && fm?.format.caption) setCaption((c) => c || fm.format.caption!.replace(/\{(\w+)\}/g, (_, k) => text(b[k])))
-  }, [fm?.format.id]) // eslint-disable-line react-hooks/exhaustive-deps -- once the formats load
+    if (ep.caption || !b || !fm) return
+    const start = [fm.format.caption?.replace(/\{(\w+)\}/g, (_, k) => text(b[k])), tags].filter(Boolean).join('\n\n')
+    setCaption((c) => c || start)
+  }, [fm?.format.id, tags]) // eslint-disable-line react-hooks/exhaustive-deps -- once the formats and projects load
   const [note, setNote] = useState<{ ok: boolean; text: string } | null>(null)
   const done = ep.status === 'done'
   const finder = navigator.userAgent.includes('Mac') ? 'Finder' : 'Explorer'
@@ -206,7 +209,8 @@ function Review({ ep }: { ep: Episode }) {
             <p className="mt-1 text-xs text-muted">A new episode in the same world and style.</p>
           </div>
           <Button onClick={() => compose({ series: ep.series ?? ep.slug, language: ep.language ?? b?.language,
-            style: b?.style_prompt ? 'custom' : b?.style, style_prompt: b?.style_prompt })}>
+            style: b?.style_prompt ? 'custom' : b?.style, style_prompt: b?.style_prompt,
+            project: ep.project, variant: ep.variant, cast: b?.cast as string[] | undefined })}>
             <Plus size={15} /> Next episode
           </Button>
         </div>

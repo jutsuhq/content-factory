@@ -10,8 +10,8 @@ from fastapi.staticfiles import StaticFiles
 from factory import jobs
 from factory.api import handlers
 from factory.api.paths import SAMPLES
-from factory.api.routes import catalog, episodes, images, storage, system, voice
-from factory.core import DATA, EPISODES, FORMATS
+from factory.api.routes import catalog, episodes, images, projects, storage, system, voice
+from factory.core import DATA, EPISODES, FORMATS, PROJECTS
 from factory.music import library
 
 
@@ -45,15 +45,24 @@ async def require_app_header(request, call_next):
     return await call_next(request)
 
 
-for d in (EPISODES, SAMPLES, DATA / "formats", library.DIR):
+for d in (EPISODES, PROJECTS, SAMPLES, DATA / "formats", library.DIR):
     d.mkdir(parents=True, exist_ok=True)
 app.mount("/files/episodes", StaticFiles(directory=EPISODES), name="episodes")
+app.mount("/files/projects", StaticFiles(directory=PROJECTS), name="projects")
 app.mount("/files/formats", StaticFiles(directory=FORMATS), name="formats")
 app.mount("/files/data-formats", StaticFiles(directory=DATA / "formats"), name="data-formats")
 app.mount("/files/music", StaticFiles(directory=library.DIR), name="music")
 app.mount("/files/samples", StaticFiles(directory=SAMPLES), name="samples")
 
-for router in (system.router, catalog.router, episodes.router, images.router, storage.router, voice.router):
+for router in (
+    system.router,
+    catalog.router,
+    episodes.router,
+    projects.router,
+    images.router,
+    storage.router,
+    voice.router,
+):
     app.include_router(router, prefix="/api")
 
 
