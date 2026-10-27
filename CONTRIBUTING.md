@@ -20,7 +20,7 @@ You need [uv](https://docs.astral.sh/uv/), Node.js 20 or later, FFmpeg and, for 
 
 ```bash
 cd engine
-uv sync --extra mac            # Apple Silicon; elsewhere plain `uv sync`; --extra vosk for Russian
+uv sync                        # MLX voices come along on Apple Silicon; --extra vosk for Russian
 uv run factory doctor          # writes profile.yaml for this machine
 uv run factory setup all       # renderer packages, RIFE, depth model, starter music
 cd ../app && npm install && npx tauri dev

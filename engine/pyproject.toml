@@ -18,6 +18,10 @@ dependencies = [
   "python-multipart>=0.0.20",
   "pyyaml>=6.0",
   "uvicorn>=0.32",
+  # Apple Silicon: TTS and speech-to-text on MLX. In the main list, so a plain `uv run` never drops them.
+  "misaki[en]>=0.9; sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "mlx-audio>=0.2; sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "mlx-whisper>=0.4; sys_platform == 'darwin' and platform_machine == 'arm64'",
 ]
 
 [project.urls]
@@ -27,12 +31,6 @@ Documentation = "https://github.com/jutsuhq/content-factory/blob/main/docs/archi
 Issues = "https://github.com/jutsuhq/content-factory/issues"
 
 [project.optional-dependencies]
-# Apple Silicon: TTS and speech-to-text on MLX.
-mac = [
-    "misaki[en]>=0.9",
-    "mlx-audio>=0.2",
-    "mlx-whisper>=0.4",
-]
 # Russian voice: Vosk-TTS with RUAccent stress, on CPU on every OS.
 vosk = ["ruaccent>=1.5", "vosk-tts>=0.3.61"]
 # Windows / Linux with NVIDIA: the same models on PyTorch CUDA (stage 0.4 still to verify).

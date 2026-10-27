@@ -17,7 +17,7 @@ The Python engine: it runs the pipeline, keeps the job queue and serves the HTTP
 `cli.py` is the `factory` command, `jobs.py` the queue, `setup.py` and `doctor.py` prepare the machine.
 
 ```bash
-uv sync --extra mac        # Apple silicon; --extra vosk adds the Russian voice
+uv sync                    # MLX voices come along on Apple silicon; --extra vosk adds the Russian voice
 uv run factory --help
 uv run pytest -q tests
 ```

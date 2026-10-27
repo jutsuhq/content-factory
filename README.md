@@ -171,7 +171,7 @@ The engine is the Python project in `engine/`; run these there.
 
 ```bash
 cd engine
-uv sync --extra mac                        # add --extra vosk for the Russian voice
+uv sync                                    # add --extra vosk for the Russian voice
 uv run factory doctor                      # detect the machine, write profile.yaml
 uv run factory setup all                   # renderer, RIFE, depth model, music
 uv run factory catalog format              # formats and how to write a script in one

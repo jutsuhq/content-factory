@@ -82,9 +82,6 @@ fn start_engine(l: &Layout) -> Result<Option<Child>, String> {
     let log = File::create(l.log()).map_err(|e| e.to_string())?;
     let mut cmd = Command::new(uv);
     cmd.arg("run").arg("--project").arg(l.root.join("engine"));
-    if cfg!(all(target_os = "macos", target_arch = "aarch64")) {
-        cmd.args(["--extra", "mac"]); // MLX voice and speech-to-text
-    }
     if let Some(d) = &l.data {
         // the bundled code is read-only: the lock is used as is and the environment lives with the data
         cmd.arg("--frozen").env("UV_PROJECT_ENVIRONMENT", d.join("venv")).env("CF_DATA", d);
