@@ -164,3 +164,8 @@ export function useFormats(): Format[] {
   useEffect(() => { api.formats().then(setFormats).catch(() => setFormats([])) }, [])
   return formats
 }
+
+/** Marks a format added by the owner or by Claude, not shipped with the factory. */
+export function OwnBadge() {
+  return <span className="ml-1.5 rounded-full bg-accent/15 px-1.5 py-0.5 align-middle text-[10px] font-medium text-accent">own</span>
+}

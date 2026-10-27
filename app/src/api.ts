@@ -241,6 +241,11 @@ export const api = {
     }
     return formatsCache.list
   },
+  /** Move an own format to the trash; shipped ones cannot be removed. */
+  removeFormat: (id: string) => {
+    formatsCache = null
+    return call<{ ok: boolean }>(`/api/formats/${encodeURIComponent(id)}`, { method: 'DELETE' })
+  },
   styles: (format?: string) => call<Style[]>(`/api/styles${format ? `?format=${encodeURIComponent(format)}` : ''}`),
   music: () => call<Track[]>('/api/music'),
   stylePreview: (id: string, format?: string) => post<{ job: number }>(`/api/styles/${id}/preview${format ? `?format=${encodeURIComponent(format)}` : ''}`),

@@ -23,7 +23,9 @@ def folders() -> dict[str, Path]:
 
 
 def ids() -> list[str]:
-    return sorted(folders())
+    """Shipped formats first, so an own one never becomes the default when the owner has not picked one."""
+    found = folders()
+    return sorted(found, key=lambda f: (found[f].parent == OWN_FORMATS, f))
 
 
 def default_id() -> str:

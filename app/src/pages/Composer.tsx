@@ -2,7 +2,7 @@ import { ImagePlus, Loader2, Mic, MicOff, PenNib, Sparkles } from '../icons'
 import { useEffect, useState } from 'react'
 import { api, type ComposeIn, type Format, type ImageProvider, type Settings, type Style, type Variant, type Voice } from '../api'
 import { useApp } from '../App'
-import { Button, Field, Modal, cx, inputCls } from '../ui'
+import { Button, Field, Modal, cx, inputCls, OwnBadge } from '../ui'
 import { Avatar, CastPick } from './Project'
 
 // icons a format's render mode may name (format.yaml `render_modes.<mode>.icon`)
@@ -171,7 +171,7 @@ export function Composer({ prefill, onClose }: { prefill: Partial<ComposeIn>; on
                 {formats.map((f) => (
                   <button key={f.id} type="button" onClick={() => setFormat(f.id)} title={f.description}
                     className={cx('rounded-xl border px-3 py-2.5 text-left text-xs transition', format === f.id ? 'border-accent bg-accent/10' : 'border-line hover:border-muted')}>
-                    <span className="block font-medium text-text">{f.title}</span>
+                    <span className="block font-medium text-text">{f.title}{f.own && <OwnBadge />}</span>
                     <span className="line-clamp-2 text-muted">{f.description}</span>
                   </button>
                 ))}

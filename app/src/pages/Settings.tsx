@@ -1,7 +1,7 @@
 import { Check, Copy, ExternalLink, FolderOpen, Loader2, Mic, MicOff, RefreshCw, Trash2 } from '../icons'
 import { useEffect, useState, type ReactNode } from 'react'
 import { api, type Defaults, type Format, type Settings, type Storage, type Style } from '../api'
-import { Button, Field, Toggle, bytes, cx, inputCls } from '../ui'
+import { Button, Field, OwnBadge, Toggle, bytes, cx, inputCls } from '../ui'
 import { Components, ImageProviders } from './Setup'
 
 type Profile = {
@@ -48,6 +48,7 @@ export function SettingsPage() {
     <div className="mx-auto max-w-3xl space-y-5 px-8 py-8">
       <h1 className="font-display text-[40px]">Settings</h1>
       <NewVideos s={s} formats={formats} styles={styles} onSaved={setS} />
+      <Formats formats={formats} onRemoved={() => api.formats().then(setFormats)} />
       <Images />
       <StorageSection />
       <Claude command={s.mcp} />
@@ -216,6 +217,40 @@ function StorageSection() {
         {note && <span className="text-sm text-muted">{note}</span>}
       </div>
       <p className="mt-3 text-xs text-faint">The cache is the in-between frames of the transitions, remade on the next rebuild. Frames, voice and videos are kept.</p>
+    </Section>
+  )
+}
+
+// Shipped formats and the ones Claude added through save_format; own ones can be removed.
+function Formats({ formats, onRemoved }: { formats: Format[]; onRemoved: () => void }) {
+  const [busy, setBusy] = useState('')
+  const remove = async (f: Format) => {
+    if (!window.confirm(`Remove the format ${f.title}? Its videos stay, but cannot be rebuilt until it is back.`)) return
+    setBusy(f.id)
+    try {
+      await api.removeFormat(f.id)
+      onRemoved()
+    } finally {
+      setBusy('')
+    }
+  }
+  return (
+    <Section title="Formats" text="What videos the factory makes. Ask Claude for a new one: it writes the format and the engine checks it before it shows up here.">
+      <div className="divide-y divide-line">
+        {formats.map((f) => (
+          <div key={f.id} className="flex items-center justify-between gap-3 py-2.5">
+            <div className="min-w-0">
+              <div className="text-sm font-medium text-text">{f.title}{f.own && <OwnBadge />}</div>
+              <p className="truncate text-xs text-muted" title={f.description}>{f.description}</p>
+            </div>
+            {f.own && (
+              <Button variant="danger" onClick={() => remove(f)} disabled={busy === f.id}>
+                {busy === f.id ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />} Remove
+              </Button>
+            )}
+          </div>
+        ))}
+      </div>
     </Section>
   )
 }
