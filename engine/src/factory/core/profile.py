@@ -10,7 +10,7 @@ from pathlib import Path
 
 import yaml
 
-from factory.core.paths import PROFILE
+from factory.core.paths import BIN, MODELS, PROFILE, platform_key
 
 # Used when the profile has no voice for a language.
 DEFAULT_VOICES = {
@@ -19,12 +19,21 @@ DEFAULT_VOICES = {
 }
 
 
+def installed() -> dict:
+    """What the engine installs into DATA itself, found where DATA is now: a path kept in profile.yaml goes stale
+    when the data folder or the checkout moves."""
+    exe = "rife-ncnn-vulkan.exe" if platform.system() == "Windows" else "rife-ncnn-vulkan"
+    rife = sorted((BIN / platform_key()).rglob(exe)) if (BIN / platform_key()).is_dir() else []
+    depth = MODELS / "depth" / "da2-small.onnx"
+    return {"rife": str(rife[0]) if rife else None, "depth_model": str(depth) if depth.exists() else None}
+
+
 def load_profile() -> dict:
     if not PROFILE.exists():
         raise SystemExit("profile.yaml not found: run `factory doctor` first")
     profile = yaml.safe_load(PROFILE.read_text(encoding="utf-8"))
     profile.setdefault("voices", dict(DEFAULT_VOICES))
-    return profile
+    return {**profile, **installed()}
 
 
 # What a new video starts with; the owner changes them in Settings (profile.yaml `defaults`). An unset or missing

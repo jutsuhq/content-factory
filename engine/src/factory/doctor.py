@@ -6,8 +6,8 @@ import platform
 import shutil
 import subprocess
 
-from factory.core import BIN, MODELS, PROFILE, load_profile, platform_key, save_profile
-from factory.core.profile import DEFAULT_VOICES
+from factory.core import PROFILE, load_profile, platform_key, save_profile
+from factory.core.profile import DEFAULT_VOICES, installed
 
 
 def _gpu() -> str:
@@ -22,19 +22,12 @@ def _gpu() -> str:
     return "cpu"
 
 
-def _rife() -> str | None:
-    exe = "rife-ncnn-vulkan.exe" if platform.system() == "Windows" else "rife-ncnn-vulkan"
-    hits = sorted((BIN / platform_key()).rglob(exe))
-    return str(hits[0]) if hits else None
-
-
 def run() -> dict:
     """Detects the machine and writes profile.yaml. What the owner chose since (defaults, storage, image workers,
     voices) is kept: only what doctor detects is replaced."""
     prev = load_profile() if PROFILE.exists() else {}
     gpu = _gpu()
     tools = {name: shutil.which(name) for name in ("ffmpeg", "node", "npx")}
-    depth_model = MODELS / "depth" / "da2-small.onnx"
     image_workers = (prev.get("providers") or {}).get("image")
     if image_workers is None:
         from factory.providers import image
@@ -45,8 +38,7 @@ def run() -> dict:
         "platform": platform_key(),
         "gpu": gpu,
         "tools": tools,
-        "rife": _rife(),
-        "depth_model": str(depth_model) if depth_model.exists() else None,
+        **installed(),
         "providers": {
             "image": image_workers,
             "depth": "onnx-coreml" if gpu == "apple" else "onnx-cuda" if gpu == "nvidia" else "onnx-cpu",
