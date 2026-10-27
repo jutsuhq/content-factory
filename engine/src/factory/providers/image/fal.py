@@ -56,7 +56,6 @@ class FalWorker:
 
 
 def check() -> str:
-    """Reads the price list of the edit model: authenticated, free, and fails on a bad key."""
-    doc = web.call(f"https://api.fal.ai/v1/models/pricing?endpoint_id={EDIT}", {"Authorization": f"Key {_key()}"})
-    price = next((p for p in doc.get("prices", []) if p.get("endpoint_id") == EDIT), None)
-    return "fal key works" + (f", Kontext costs ${price['unit_price']} per {price['unit']}" if price else "")
+    """Reads the edit model's pricing entry, which needs a valid key and costs nothing; fails on a bad key."""
+    web.call(f"https://api.fal.ai/v1/models/pricing?endpoint_id={EDIT}", {"Authorization": f"Key {_key()}"})
+    return "fal key works"

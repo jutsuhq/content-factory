@@ -171,7 +171,6 @@ export function ImageProviders({ onChange }: { onChange?: (on: number) => void }
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 text-sm text-text">
                 {p.title}
-                {p.price != null && <span className="tabular rounded-full bg-raised px-2 py-0.5 text-[11px] text-muted">≈ ${p.price.toFixed(3)} / image</span>}
                 {p.private && <span className="rounded-full bg-raised px-2 py-0.5 text-[11px] text-muted">local</span>}
               </div>
               <p className="mt-0.5 text-xs text-muted">{p.note}</p>

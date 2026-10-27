@@ -176,7 +176,7 @@ def test_check_lists_models_and_raises_on_a_bad_key(keys, monkeypatch):
         "https://generativelanguage.googleapis.com/v1beta/models"
     )
     fake(monkeypatch, {"prices": [{"endpoint_id": "fal-ai/flux-pro/kontext", "unit_price": 0.04, "unit": "image"}]})
-    assert check("fal") == "fal key works, Kontext costs $0.04 per image"
+    assert check("fal") == "fal key works"
     fake(
         monkeypatch, urllib.error.HTTPError("u", 401, "Unauthorized", {}, io.BytesIO(b'{"error": {"message": "bad"}}'))
     )

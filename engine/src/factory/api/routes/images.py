@@ -25,7 +25,6 @@ def _listing() -> list[dict]:
                 "title": pid,
                 "key": None,
                 "signup": None,
-                "price": None,
                 "workers": private.DEFAULTS.get(pid, 1),
                 "edits": True,
                 "note": "local worker",

@@ -69,11 +69,8 @@ export function Composer({ prefill, onClose }: { prefill: Partial<ComposeIn>; on
   const noVoice = voice && language !== '' && Object.keys(voices).length > 0 && !voices[language]
 
   const beats = Math.max(4, Math.min(12, Math.round(duration / 6)))
-  // frames are the only paid step: the cheapest enabled image provider sets the estimate
-  const on = images.filter((p) => p.enabled > 0)
-  const price = on.length ? Math.min(...on.map((p) => p.price ?? 0)) : null
   const frames = m?.stages.includes('frames') ? beats : 0 // the frames stage makes one image per beat
-  const cost = !frames ? 'free' : price === null ? 'no image provider' : price === 0 ? 'local worker' : `~$${(beats * price).toFixed(2)}`
+  const noProvider = frames > 0 && !images.some((p) => p.enabled > 0)
 
   const submit = async () => {
     setBusy(true)
@@ -214,7 +211,7 @@ export function Composer({ prefill, onClose }: { prefill: Partial<ComposeIn>; on
             <div className="flex justify-between"><span>Beats per episode</span><span className="tabular text-text">~{beats}</span></div>
             <div className="flex justify-between"><span>Frames to generate</span><span className="tabular text-text">{frames}</span></div>
             <div className="flex justify-between"><span>Time</span><span className="tabular text-text">~{Math.ceil(beats / 4) * 3 + 4} min</span></div>
-            <div className="flex justify-between"><span>Cost</span><span className={price === null ? 'text-warn' : 'tabular text-text'}>{cost}</span></div>
+            {noProvider && <div className="text-warn">Turn on an image provider in Settings to make the frames.</div>}
           </div>
           {error && <p className="text-sm text-bad">{error}</p>}
           <Button variant="primary" className="w-full" disabled={busy || !topic.trim() || !language || !format || noVoice || (!looks && style === 'custom' && !stylePrompt.trim())} onClick={submit}>

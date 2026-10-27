@@ -58,7 +58,7 @@ cd ../app && npx tsc -p tsconfig.app.json --noEmit
 
 Image providers live in `engine/src/factory/providers/image/`. A worker class takes `(n)`, has `name`,
 `generate(job)` and `close()`, and raises in the constructor when its key is missing. Register it in `pool.WORKERS` and describe it in
-`catalog.PROVIDERS` with its key name, sign-up link, price per image and a free key check. See `fal.py` for a small
+`catalog.PROVIDERS` with its key name, sign-up link and a free key check. See `fal.py` for a small
 example.
 
 ## Licenses

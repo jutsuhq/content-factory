@@ -141,7 +141,6 @@ export type ImageProvider = {
   title: string
   key: string | null // env name of its API key; null for a local worker
   signup: string | null
-  price: number | null // approx USD per image
   workers: number // parallel requests when enabled
   edits: boolean
   note: string
