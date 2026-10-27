@@ -1,18 +1,32 @@
-# Manual for now: run it from the Actions tab. Add push / pull_request triggers once the repository is public.
 name: CI
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   engine:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     defaults:
       run:
         working-directory: engine
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@v6
-      - run: uv sync --frozen --extra vosk
+        with:
+          enable-cache: true
+          cache-dependency-glob: engine/uv.lock
+      - uses: FedericoCarboni/setup-ffmpeg@v3  # audio tests cut and mix real files
+      - run: uv sync --frozen  # the optional voices are not needed by the tests
       - run: uv run pytest -q tests
       - run: uvx ruff check src tests
       - run: uvx ruff format --check src tests
@@ -20,12 +34,13 @@ jobs:
 
   render:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     defaults:
       run:
         working-directory: render
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -35,12 +50,13 @@ jobs:
 
   app:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     defaults:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm

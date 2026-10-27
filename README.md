@@ -7,7 +7,7 @@
 **Open-source AI faceless video generator for TikTok, YouTube Shorts and Instagram Reels.**<br>
 A free, local alternative to Higgsfield Content Factory: write a *What if* script, or let Claude write it,<br>
 and get a finished vertical video with AI frames, motion, voiceover, word-by-word subtitles and music,<br>
-made on your own Mac with your own image API key, about $0.30 a minute.
+made on your own Mac. Free and open source: no subscription, no credits, no watermark.
 
 <br>
 
@@ -45,7 +45,7 @@ made on your own Mac with your own image API key, about $0.30 a minute.
     </td>
     <td valign="top">
       <b>What if the Sun went out?</b><br>
-      <sub>31 s · Drawn · gouache<br>Every scene is SVG code, no image generated, $0. <a href="formats/what-if/examples/what-if-the-sun-went-out.beats.json">Script</a></sub>
+      <sub>31 s · Drawn · gouache<br>Every scene is SVG code, no image generated. <a href="formats/what-if/examples/what-if-the-sun-went-out.beats.json">Script</a></sub>
     </td>
     <td valign="top">
       <b>What if you fell into Jupiter?</b><br>
@@ -63,7 +63,7 @@ Faceless short-video channels run on formats: the same structure, a new topic ev
 format into a pipeline you own.
 
 - **No video model.** Motion comes from a handful of AI stills: depth parallax, frame interpolation, layers and
-  camera moves. A one-minute video costs eight images, about $0.30 with the image API you choose.
+  camera moves. A one-minute video needs only eight images.
 - **Formats are data.** A format is a folder with a script schema, an author's guide, prompts, style presets and a
   render template; the engine, the app and the MCP server read whichever formats are there. The bundled reference
   format is *What if*: one world, one axis of change, a counter on screen and a loop back to the hook.
@@ -85,7 +85,7 @@ yourself.
 |---|---|---|
 | Source code | open, MIT | closed |
 | Runs on | your Mac | Higgsfield's cloud |
-| Pays for | your own image API key, about $0.30 per minute of video; drawn mode is free | a Higgsfield plan |
+| Price | free: no plan, no credits, no watermark | a Higgsfield plan |
 | Motion | AI stills animated by depth parallax and frame interpolation, no video model | generative video models |
 | Script | you, Claude or any MCP agent, checked against the format's schema | written by the platform |
 | Formats | data in a folder: add your own without touching the engine | the platform's |
@@ -138,14 +138,13 @@ Everything can be changed later in Settings.
 
 ### Image providers
 
-| Provider | Model | Approx. price per image |
-|---|---|---|
-| [OpenAI](https://platform.openai.com/api-keys) | GPT Image, medium quality | $0.04 |
-| [Google Gemini](https://aistudio.google.com/apikey) | Nano Banana | $0.03 |
-| [fal.ai](https://fal.ai/dashboard/keys) | FLUX.1 Kontext | $0.04 |
+| Provider | Model |
+|---|---|
+| [OpenAI](https://platform.openai.com/api-keys) | GPT Image |
+| [Google Gemini](https://aistudio.google.com/apikey) | Nano Banana |
+| [fal.ai](https://fal.ai/dashboard/keys) | FLUX.1 Kontext |
 
-Prices are list prices at the time of writing; you pay the provider directly. Several providers can run at once and
-share the frames.
+Several providers can run at once and share the frames.
 
 ## How it works
 
@@ -240,8 +239,8 @@ An open-source desktop app and engine that turns a script into a finished facele
 Shorts and Instagram Reels: AI frames, parallax motion, transitions, voiceover, subtitles, music and a quality check.
 
 **Is it free?**
-The code is free under the MIT license. AI-frames videos use your own OpenAI, Gemini or fal.ai key, about $0.30
-for a one-minute video. Drawn mode generates no images and costs nothing.
+Yes. Content Factory is free and open source under the MIT license, with no subscription, credits or watermark.
+Drawn videos need nothing else; AI-frames videos draw their images with your own OpenAI, Gemini or fal.ai key.
 
 **Is it a Higgsfield alternative?**
 Yes, for faceless *What if* videos: the same format, made locally and open source. It does not generate video with
