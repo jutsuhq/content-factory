@@ -10,7 +10,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.utilities.types import Image
 from mcp_types import ToolAnnotations
 
-from factory.core import EPISODES, formats
+from factory.core import formats
 from factory.mcp import engine, view
 from factory.mcp.engine import EngineError
 from factory.studio import compose
@@ -33,6 +33,8 @@ def _episode_text(slug: str, full: bool = False) -> str:
     ep = engine.call("GET", f"/api/episodes/{slug}")
     qa = engine.file_json(slug, "out/qa.json") if ep.get("video") else None
     translations = [e for e in engine.call("GET", "/api/episodes") if e.get("translation_of") == slug]
+    if ep.get("video"):  # the full path, in the engine's folder, which need not be this process's own
+        ep = {**ep, "video": str(engine.episodes() / slug / ep["video"])}
     return view.episode(ep, qa, translations, full)
 
 
@@ -96,7 +98,7 @@ def _frame_sheet(slug: str) -> Image | None:
     from PIL import Image as PILImage
     from PIL import ImageDraw
 
-    files = sorted((EPISODES / slug / "work" / "public" / "frames").glob("[0-9][0-9]-916.png"))
+    files = sorted((engine.episodes() / slug / "work" / "public" / "frames").glob("[0-9][0-9]-916.png"))
     if not files:
         return None
     cols = min(len(files), 6)

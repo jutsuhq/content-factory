@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import functools
 import json
 import subprocess
 import sys
@@ -10,6 +11,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 from factory.core import DATA, ROOT
 
@@ -67,6 +69,12 @@ def call(method: str, path: str, body=None, timeout: float = 30, **query):
     if query:
         path += "?" + urllib.parse.urlencode({k: v for k, v in query.items() if v is not None})
     return _send(method, path, body, timeout)
+
+
+@functools.cache
+def episodes() -> Path:
+    """The running engine's episodes folder, which may not be this process's own DATA (the app keeps its own)."""
+    return Path(call("GET", "/api/health")["episodes"])
 
 
 def file_json(slug: str, path: str):

@@ -12,7 +12,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from factory import jobs
-from factory.core import LANGUAGES, PROFILE, ROOT, defaults, formats, load_profile, save_profile, tilde
+from factory.core import EPISODES, LANGUAGES, PROFILE, ROOT, defaults, formats, load_profile, save_profile, tilde
 from factory.music import library
 
 router = APIRouter()
@@ -22,7 +22,8 @@ router = APIRouter()
 def health() -> dict:
     from importlib.metadata import version
 
-    return {"ok": True, "root": tilde(ROOT), "version": version("content-factory")}
+    # episodes: where this engine keeps them, for clients that read files, such as the MCP server's frame sheet
+    return {"ok": True, "root": tilde(ROOT), "episodes": str(EPISODES), "version": version("content-factory")}
 
 
 @router.get("/profile")

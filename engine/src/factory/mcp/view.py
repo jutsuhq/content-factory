@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from factory.core import EPISODES, formats
+from factory.core import formats
 
 NEXT = {
     "script": "show the owner the script, edit_script with their changes, then run(action='approve') to make the video",
@@ -79,7 +79,7 @@ def episode(ep: dict, qa: dict | None = None, translations: list[dict] | None = 
     if b:
         out += _script(b, full)
     if ep.get("video"):
-        out.append(f"video: {EPISODES / ep['slug'] / ep['video']}")
+        out.append(f"video: {ep['video']}")
     out += qa_lines(qa)
     if translations:
         out.append(
