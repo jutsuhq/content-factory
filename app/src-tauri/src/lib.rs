@@ -1,7 +1,7 @@
 //! Desktop shell: starts the Python engine (`uv run factory serve`) next to the window and stops it on exit.
 //! The React UI talks to the engine over http://127.0.0.1:8790.
 //!
-//! Two layouts. A release build carries the repository's code as resources (`content-factory/`: engine/, formats/,
+//! Two layouts. A release build carries the repository's code as resources (`repo/`: engine/, formats/,
 //! render/) and keeps everything it writes in the user's app-data folder (CF_DATA), with Python and packages in
 //! `<data>/venv`. A debug build runs the repository it was built from, with its data in `data/`, so development
 //! works on the checkout itself.
@@ -41,7 +41,7 @@ fn layout(app: &AppHandle) -> Layout {
     if let Some(root) = std::env::var_os("CF_ROOT") {
         return Layout { root: root.into(), data: std::env::var_os("CF_DATA").map(PathBuf::from) };
     }
-    let bundled = app.path().resource_dir().ok().map(|d| d.join("content-factory")).filter(|d| d.join("engine/pyproject.toml").is_file());
+    let bundled = app.path().resource_dir().ok().map(|d| d.join("repo")).filter(|d| d.join("engine/pyproject.toml").is_file());
     match bundled {
         Some(root) if !cfg!(debug_assertions) => Layout { root, data: app.path().app_data_dir().ok() },
         _ => Layout {

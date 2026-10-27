@@ -40,15 +40,16 @@
       "debugApplicationIdSuffix": ".debug"
     },
     "resources": {
-      "../../engine/pyproject.toml": "content-factory/engine/pyproject.toml",
-      "../../engine/uv.lock": "content-factory/engine/uv.lock",
-      "../../engine/src/factory/": "content-factory/engine/src/factory/",
-      "../../formats/": "content-factory/formats/",
-      "../../render/package.json": "content-factory/render/package.json",
-      "../../render/package-lock.json": "content-factory/render/package-lock.json",
-      "../../render/tsconfig.json": "content-factory/render/tsconfig.json",
-      "../../render/remotion.config.ts": "content-factory/render/remotion.config.ts",
-      "../../render/src/": "content-factory/render/src/"
+      "../../engine/pyproject.toml": "repo/engine/pyproject.toml",
+      "../../engine/uv.lock": "repo/engine/uv.lock",
+      "../../engine/README.md": "repo/engine/README.md",
+      "../../engine/src/factory/": "repo/engine/src/factory/",
+      "../../formats/": "repo/formats/",
+      "../../render/package.json": "repo/render/package.json",
+      "../../render/package-lock.json": "repo/render/package-lock.json",
+      "../../render/tsconfig.json": "repo/render/tsconfig.json",
+      "../../render/remotion.config.ts": "repo/render/remotion.config.ts",
+      "../../render/src/": "repo/render/src/"
     },
     "category": "Video",
     "shortDescription": "Open-source AI faceless video generator",
