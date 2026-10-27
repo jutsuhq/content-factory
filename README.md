@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/banner.png" alt="Content Factory, an open-source AI faceless video generator for TikTok, YouTube Shorts and Instagram Reels" width="100%">
+<img src="docs/assets/banner.png" alt="Content Factory, a free open-source AI faceless video generator for TikTok, YouTube Shorts and Instagram Reels" width="100%">
 
 # Content Factory
 
