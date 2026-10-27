@@ -1,5 +1,6 @@
 # Style presets for state frames. `prompt` goes first in every style-frame prompt.
 # `preview` is a path under the format folder, made by the "style preview" job in the app.
+# `props` go to the template as they are; `text: sticker` draws the counter and subtitles as bold outlined stickers.
 toon-homestead:
   title: Toon 3D
   tags: [toon 3D, cozy village, warm light]
@@ -36,3 +37,10 @@ space-epic:
   prompt: >-
     Cinematic photoreal space scene, dramatic scale, volumetric light, deep black space,
     rich planet colours, wide establishing composition.
+flat-cartoon:
+  title: Flat Cartoon
+  tags: [2D cartoon, bold outlines, explainer]
+  props: { text: sticker }
+  prompt: >-
+    Flat 2D vector cartoon for a kids science explainer, thick black outlines, bright flat colours with
+    simple cel shading, round friendly shapes, clean uncluttered background, sticker-like characters.

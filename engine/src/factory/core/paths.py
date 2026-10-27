@@ -12,7 +12,8 @@ from pathlib import Path
 ROOT = Path(os.environ.get("CF_ROOT") or Path(__file__).resolve().parents[4])
 ENGINE = ROOT / "engine"  # the Python project: pyproject.toml, uv.lock, src/
 DATA = Path(os.environ.get("CF_DATA") or ROOT / "data")
-FORMATS = ROOT / "formats"
+FORMATS = ROOT / "formats"  # the formats that ship with the factory, read-only
+OWN_FORMATS = DATA / "formats"  # formats added later, by the owner or an agent; also previews made here
 EPISODES = DATA / "episodes"
 PROJECTS = DATA / "projects"
 PROFILE = DATA / "profile.yaml"

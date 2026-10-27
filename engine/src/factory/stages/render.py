@@ -8,9 +8,10 @@ import json
 import os
 import shutil
 import subprocess
+from pathlib import Path
 
 from factory import stages
-from factory.core import DATA, FORMATS, ROOT, Episode, formats
+from factory.core import DATA, ROOT, Episode, formats
 from factory.music import library
 from factory.stages.transitions import FRAMES_PER_PAIR
 from factory.voice import audio, fit
@@ -19,13 +20,24 @@ FPS = 30
 MORPH_SECONDS = 1.5
 
 # The Remotion project. In a checkout it is render/ itself; the app's resources are read-only, so it copies render/ to
-# DATA, where npm can install into it. Either way the templates are read from formats/*/template/.
+# DATA, where npm can install into it. Either way the template comes from the episode's format (gather_template).
 RENDER = ROOT / "render" if DATA == ROOT / "data" else DATA / "render"
+TEMPLATES = DATA / "render-formats"  # the template an episode renders with, gathered for its bundle
+
+
+def gather_template(ep: Episode) -> Path:
+    """Copy the episode's format's template/ into TEMPLATES/<slug>/<id>/template/, the one folder the renderer
+    bundles (CF_FORMATS). Only this format's: shipped and own formats live in two places, and a copy of a format may
+    keep its composition id, which must be unique in a bundle."""
+    out = TEMPLATES / ep.slug
+    shutil.rmtree(out, ignore_errors=True)
+    shutil.copytree(ep.format_dir / "template", out / ep.format_dir.name / "template")
+    return out
 
 
 def timeline(ep: Episode) -> dict:
-    """The template's props: the script's own fields (top level and per beat, the spoken line aside), timing from the
-    voice, and the files of whichever picture stages the render mode runs."""
+    """The template's props: the style preset's `props`, the script's own fields (top level and per beat, the spoken
+    line aside), timing from the voice, and the files of whichever picture stages the render mode runs."""
     pub = ep.work()
     beats, t = [], 0.0
     src = ep.beats["beats"]
@@ -50,7 +62,15 @@ def timeline(ep: Episode) -> dict:
         beats.append(item)
         t += length
     top = {k: v for k, v in ep.beats.items() if k != "beats"}
-    return {**top, "mode": formats.mode(ep.format, ep.beats), "fps": FPS, "duration": round(t, 3), "beats": beats}
+    props = formats.styles(ep.format["id"]).get(ep.beats.get("style"), {}).get("props", {})  # the preset's, if any
+    return {
+        **props,
+        **top,
+        "mode": formats.mode(ep.format, ep.beats),
+        "fps": FPS,
+        "duration": round(t, 3),
+        "beats": beats,
+    }
 
 
 def run(ep: Episode, profile: dict) -> None:
@@ -61,6 +81,7 @@ def run(ep: Episode, profile: dict) -> None:
     out.parent.mkdir(exist_ok=True)
     raw = out.with_name(f"{ep.slug}.raw.mp4")
     npx = shutil.which("npx") or "npx"  # npx.cmd on Windows
+    templates = gather_template(ep)
     subprocess.run(
         [
             npx,
@@ -76,9 +97,10 @@ def run(ep: Episode, profile: dict) -> None:
             "--log=error",
         ],
         cwd=RENDER,
-        env={**os.environ, "CF_FORMATS": str(FORMATS)},
+        env={**os.environ, "CF_FORMATS": str(templates)},
         check=True,
     )
+    shutil.rmtree(templates, ignore_errors=True)
     mood = " ".join(
         str(ep.beats.get(k, ""))
         for k in ("title", *formats.keys(ep.format, tl["mode"], "script", "translate"), "style")

@@ -196,9 +196,12 @@ claude mcp add -s user content-factory -- uv run --project /path/to/content-fact
 ```
 
 Tools: `status`, `episodes`, `episode`, `create`, `edit_script`, `run` (approve, rebuild, redo a frame, translate),
-`job`, `accept`, `catalog` (format, styles, music, voices, projects). Then ask Claude something like *"make a What if
+`job`, `accept`, `catalog` (format, new_format, styles, music, voices, projects), `format_source`, `save_format`. Then ask Claude something like *"make a What if
 video about falling into Jupiter, 70 seconds, space epic style"*, or *"two new videos for Tiny Town Tales, English
-variant, with Milo"*: `catalog('projects')` gives the channel's brief, variants and cast.
+variant, with Milo"*: `catalog('projects')` gives the channel's brief, variants and cast. When no format fits, Claude
+can bring a new one: it reads the closest format with `format_source`, writes its own (schema, guide, prompts,
+styles, Remotion template, an example) and `save_format` checks and adds it, ready in the app at once
+([formats/README.md](formats/README.md)).
 
 ## Repository layout
 

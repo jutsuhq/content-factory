@@ -1,5 +1,6 @@
 """frames: one locked scene per beat from the format's prompts/first_frame.txt, every later one edited from the first
-with prompts/next_frame.txt.
+with prompts/next_frame.txt. A render mode may bring its own pair in prompts/<mode>/, such as new scenes in the
+first one's style instead of edits of one world.
 
 The first frame sets the look and is made alone; the rest are edits of it and run in parallel.
 A script of a project may name characters of its cast (`project`, `cast`): every prompt then describes them and every
@@ -12,7 +13,7 @@ from __future__ import annotations
 import yaml
 from PIL import Image
 
-from factory.core import Episode, digest, fresh, mark, projects
+from factory.core import Episode, digest, formats, fresh, mark, projects
 from factory.providers.image import ImageJob, run_jobs
 
 ASPECT = 9 / 16
@@ -42,12 +43,19 @@ def _cast(ep: Episode) -> tuple[str, list]:
     return f"\n\n{lead}:\n" + "\n".join(lines), files
 
 
+def _prompt(ep: Episode, name: str) -> str:
+    """A prompt template of the format: the render mode's own (prompts/<mode>/), else the format's."""
+    d = ep.format_dir / "prompts"
+    own = d / formats.mode(ep.format, ep.beats) / name
+    return (own if own.exists() else d / name).read_text(encoding="utf-8").strip()
+
+
 def _prompts(ep: Episode) -> list[str]:
     b = ep.beats
     presets = yaml.safe_load((ep.format_dir / "styles.yaml").read_text(encoding="utf-8"))
     style = b.get("style_prompt") or presets[b["style"]]["prompt"]
-    first = (ep.format_dir / "prompts" / "first_frame.txt").read_text(encoding="utf-8").strip()
-    edit = (ep.format_dir / "prompts" / "next_frame.txt").read_text(encoding="utf-8").strip()
+    first = _prompt(ep, "first_frame.txt")
+    edit = _prompt(ep, "next_frame.txt")
     # the format's prompt templates name script and beat fields as {field}; {style} is the style text
     top = {k: v for k, v in b.items() if k != "beats"}
     cast = _cast(ep)[0]

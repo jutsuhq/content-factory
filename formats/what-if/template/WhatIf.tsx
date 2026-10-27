@@ -26,8 +26,9 @@ export type Beat = {
   words: Word[]; // seconds from the beat start
   morph?: { dir: string; count: number; seconds: number }; // into the next beat, at the end of this one
 };
-// timeline.json: the script's own fields plus timing; mode is the render mode, style the preset or look
-export type Timeline = { fps: number; duration: number; hook: string; mode?: string; style?: string; beats: Beat[] };
+// timeline.json: the style preset's props, the script's own fields plus timing; mode is the render mode, style the
+// preset or look, text the look of the counter and subtitles ("sticker": bold outlined, else plain with a shadow)
+export type Timeline = { fps: number; duration: number; hook: string; mode?: string; style?: string; text?: string; beats: Beat[] };
 
 const frameName = (n: number) => `${String(n).padStart(8, "0")}.jpg`;
 
@@ -144,6 +145,49 @@ const World = ({ tl, t }: { tl: Timeline; t: number }) => {
 
 const shadow = "0 4px 18px rgba(0,0,0,.65), 0 0 4px rgba(0,0,0,.5)";
 
+// Sticker text: a heavy rounded face with a thick dark outline drawn under the fill.
+const STICKER = { fontFamily: '"Arial Rounded MT Bold", "Arial Black", sans-serif', fontWeight: 900, WebkitTextStroke: "14px #111", paintOrder: "stroke fill", textTransform: "uppercase" } as const;
+const YELLOW = "#ffd84d";
+
+const StickerHud = ({ beat, t, hook }: { beat: Beat; t: number; hook: string }) => {
+  const pop = interpolate(t - beat.start, [0, 0.18, 0.3], [0.6, 1.08, 1], { extrapolateRight: "clamp" });
+  return (
+    <AbsoluteFill style={{ alignItems: "center", textAlign: "center" }}>
+      {t < 2.5 ? (
+        <div style={{ ...STICKER, position: "absolute", top: 150, padding: "0 70px", fontSize: 96, lineHeight: 1.05, color: YELLOW }}>{hook}</div>
+      ) : (
+        <div style={{ position: "absolute", top: 150, display: "flex", flexDirection: "column", alignItems: "center", gap: 18, transform: `scale(${pop})` }}>
+          <div style={{ background: "white", border: "8px solid #111", borderRadius: 28, padding: "10px 44px", boxShadow: "0 10px 0 rgba(0,0,0,.35)" }}>
+            <div style={{ ...STICKER, WebkitTextStroke: "10px #111", fontSize: Math.min(120, 1300 / Math.max(1, beat.counter.length)), color: YELLOW, whiteSpace: "nowrap" }}>{beat.counter}</div>
+          </div>
+          <div style={{ ...STICKER, WebkitTextStroke: "10px #111", fontSize: 50, color: "white", padding: "0 80px" }}>{beat.caption}</div>
+        </div>
+      )}
+    </AbsoluteFill>
+  );
+};
+
+// Two words at a time, the spoken one yellow, each popping in as it is said.
+const StickerSubtitles = ({ words, t }: { words: Word[]; t: number }) => {
+  const i = words.findLastIndex((w) => w.start <= t);
+  if (i < 0 || t > words[words.length - 1].end + 0.4) return null;
+  const from = Math.floor(i / 2) * 2;
+  return (
+    <AbsoluteFill style={{ justifyContent: "flex-end", alignItems: "center", paddingBottom: 360 }}>
+      <div style={{ ...STICKER, fontSize: 104, textAlign: "center", padding: "0 60px", lineHeight: 1.1 }}>
+        {words.slice(from, from + 2).map((w, k) => {
+          const pop = interpolate(t - w.start, [0, 0.12, 0.22], [0.5, 1.12, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+          return (
+            <span key={k} style={{ display: "inline-block", margin: "0 14px", color: from + k === i ? YELLOW : "white", transform: `scale(${from + k <= i ? pop : 1})` }}>
+              {w.word.replace(/[.,!?;:]+$/, "")}
+            </span>
+          );
+        })}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 const Hud = ({ beat, t, hook }: { beat: Beat; t: number; hook: string }) => (
   <AbsoluteFill style={{ fontFamily: "Helvetica Neue, Arial, sans-serif", color: "white", textShadow: shadow, textAlign: "center" }}>
     {/* a long counter ("MILLIONS OF YEARS") shrinks to stay on one line above the caption */}
@@ -188,8 +232,17 @@ export const WhatIf = ({ timeline: tl }: { timeline: Timeline }) => {
           <World tl={tl} t={t} />
         </ThreeCanvas>
       )}
-      <Hud beat={hudBeat} t={t} hook={tl.hook} />
-      <Subtitles words={beat.words} t={t - beat.start} />
+      {tl.text === "sticker" ? (
+        <>
+          <StickerHud beat={hudBeat} t={t} hook={tl.hook} />
+          <StickerSubtitles words={beat.words} t={t - beat.start} />
+        </>
+      ) : (
+        <>
+          <Hud beat={hudBeat} t={t} hook={tl.hook} />
+          <Subtitles words={beat.words} t={t - beat.start} />
+        </>
+      )}
       {tl.beats.map((b, k) =>
         b.voice ? (
           <Sequence key={k} from={Math.round(b.start * fps)} durationInFrames={Math.round(b.duration * fps)}>

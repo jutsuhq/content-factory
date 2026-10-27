@@ -76,6 +76,11 @@ def main() -> None:
     p.add_argument("--format")
     p.add_argument("--language", default="en")
 
+    p = sub.add_parser("format", help="read a format's files into a folder, or save a folder as an own format")
+    p.add_argument("action", choices=["show", "save", "remove"])
+    p.add_argument("id")
+    p.add_argument("folder", nargs="?", help="show: write the files here instead of printing; save: read them here")
+
     sub.add_parser("doctor", help="detect OS, GPU and tools, write profile.yaml")
     p = sub.add_parser("setup", help="show what is installed; with names (or 'all') install them")
     p.add_argument("components", nargs="*", help="component ids, or all")
@@ -93,7 +98,7 @@ def main() -> None:
     p.add_argument("name")
     args = ap.parse_args()
 
-    if args.cmd in ("status", "episodes", "episode", "create", "edit", "run", "job", "accept", "catalog"):
+    if args.cmd in ("status", "episodes", "episode", "create", "edit", "run", "job", "accept", "catalog", "format"):
         print(_command(args))
     elif args.cmd == "music":
         _music(args)
@@ -153,6 +158,8 @@ def _command(args) -> str:
             args.variant,
             args.cast.split(",") if args.cast else None,
         )
+    if args.cmd == "format":
+        return _format(args)
     if args.cmd == "edit":
         return server.edit_script(args.slug, _json(args.changes) or {})
     if args.cmd == "run":
@@ -164,6 +171,32 @@ def _command(args) -> str:
     if args.cmd == "accept":
         return server.accept(args.slug, args.caption)
     return server.catalog(args.kind, args.language, args.format)
+
+
+def _format(args) -> str:
+    """Formats travel as folders on disk; the engine gets and gives them as files by path."""
+    from factory.mcp import server
+    from factory.studio.formats import TEXT
+
+    if args.action == "remove":
+        return server.save_format(args.id, remove=True)
+    if args.action == "save":
+        root = Path(args.folder or ".")
+        files = {
+            p.relative_to(root).as_posix(): p.read_text(encoding="utf-8")
+            for p in sorted(root.rglob("*"))
+            if p.is_file() and p.suffix in TEXT
+        }
+        return server.save_format(args.id, files)
+    if not args.folder:
+        return server.format_source(args.id)
+    from factory.mcp import engine
+
+    src = engine.call("GET", f"/api/formats/{args.id}/source")
+    for rel, text in src["files"].items():
+        (Path(args.folder) / rel).parent.mkdir(parents=True, exist_ok=True)
+        (Path(args.folder) / rel).write_text(text, encoding="utf-8")
+    return f"{len(src['files'])} files of {args.id} in {args.folder}"
 
 
 def _music(args) -> None:

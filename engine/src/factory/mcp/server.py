@@ -1,4 +1,4 @@
-"""The MCP tools. Nine of them, each answering in a few lines of text; see the package docstring for the rules."""
+"""The MCP tools. Eleven of them, each answering in a few lines of text; see the package docstring for the rules."""
 
 from __future__ import annotations
 
@@ -10,10 +10,9 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.utilities.types import Image
 from mcp_types import ToolAnnotations
 
-from factory.core import formats
+from factory.core import FORMATS
 from factory.mcp import engine, view
 from factory.mcp.engine import EngineError
-from factory.studio import compose
 
 INSTRUCTIONS = """Content Factory makes faceless short videos on this machine: AI frames from an image API, depth
 parallax, local voice, CC0 music, Remotion render. The factory does not write scripts: you write them from the owner's
@@ -22,6 +21,8 @@ brief. Videos usually belong to a project, the owner's channel: catalog('project
 brief. Flow: catalog('format') once for the formats and their rules -> create(topic, script, format) -> show the owner
 the script, edit_script on feedback -> run('approve') -> job(id) until done -> episode(slug) gives the video path and
 the quality check -> accept once the owner is happy with it. Posting is the owner's job: give them the file path.
+A video no format fits: make a new format. catalog('new_format') says how, format_source gives a format's files to
+start from, save_format checks and adds it; it is usable at once, in the app too.
 Long work runs in the engine's queue; job(id) waits for it (up to 50 s per call), never poll faster.
 Texts are in the episode's language; the image prompt fields the format's guide marks as English stay in English."""
 
@@ -262,22 +263,29 @@ def accept(slug: str, caption: str = "") -> str:
 
 @server.tool(annotations=READ, structured_output=False)
 def catalog(
-    kind: Literal["format", "styles", "music", "voices", "projects"], language: str = "en", format: str | None = None
+    kind: Literal["format", "new_format", "styles", "music", "voices", "projects"],
+    language: str = "en",
+    format: str | None = None,
 ) -> str:
     """format: with a format id, how to write a script in it (rules, fields, a finished example); without one, the
     formats (id — title: description), or the guide itself when there is only one. Read it before your first create.
     styles of a format (id — title, tags; the default format without one), music (id — moods), voices (language —
-    engine, voice), projects (the owner's channels: brief, variants with their settings, cast with looks)."""
+    engine, voice), projects (the owner's channels: brief, variants with their settings, cast with looks),
+    new_format (how a format is built, to make one when no format fits the video)."""
     if kind == "projects":
         return "\n\n".join(map(view.project, engine.call("GET", "/api/projects"))) or "no projects"
+    if kind == "new_format":
+        return (FORMATS / "README.md").read_text(encoding="utf-8")
     if kind == "format":
-        ids = formats.ids()
-        if format or len(ids) == 1:
+        found = engine.call("GET", "/api/formats")
+        if format or len(found) == 1:
             try:
-                return compose.guide(language, format)
-            except ValueError as e:
+                return engine.call("GET", f"/api/formats/{format or found[0]['id']}/guide", language=language)["guide"]
+            except EngineError as e:
                 return str(e)
-        return "\n".join(f"{f['id']} — {f['title']}: {f['description']}" for f in map(formats.load, ids))
+        return "\n".join(
+            f"{f['id']} — {f['title']}{' (own)' if f.get('own') else ''}: {f['description']}" for f in found
+        )
     if kind == "styles":
         try:
             found = engine.call("GET", "/api/styles", format=format)
@@ -293,6 +301,34 @@ def catalog(
             "\n".join(f"{t['id']} — {', '.join(t.get('moods', []))}" for t in tracks) + f"\nall {', '.join(licences)}"
         )
     return "\n".join(f"{lang} — {v['engine']}, {v['speaker']}" for lang, v in engine.call("GET", "/api/voices").items())
+
+
+@server.tool(annotations=READ, structured_output=False)
+def format_source(format: str) -> str:
+    """Every text file of a format (format.yaml, schema, guide, prompts, styles, the Remotion template, examples),
+    each under a '=== path' line: start a new format from the closest one."""
+    try:
+        src = engine.call("GET", f"/api/formats/{format}/source")
+    except EngineError as e:
+        return str(e)
+    head = f"{src['id']} ({'own' if src['own'] else 'shipped, read-only: save changes under a new id'})"
+    other = f"\nnot shown: {', '.join(src['other'])}" if src["other"] else ""
+    return head + "".join(f"\n=== {p}\n{t}" for p, t in src["files"].items()) + other
+
+
+@server.tool(annotations=WRITE, structured_output=False)
+def save_format(id: str, files: dict[str, str] | None = None, remove: bool = False) -> str:
+    """Add or replace one of the owner's own formats: files maps a path inside the format folder to its text, the
+    whole format every time (see catalog('new_format')). The engine checks it, examples included, and keeps nothing
+    when a check fails; then create(format=id) works at once. remove: move the own format to the trash."""
+    try:
+        if remove:
+            engine.call("DELETE", f"/api/formats/{id}")
+            return f"{id} removed"
+        r = engine.call("PUT", f"/api/formats/{id}", {"files": files or {}})
+    except EngineError as e:
+        return f"not saved: {e}"
+    return f"saved {r['id']} — {r['title']}: render modes {', '.join(r['render_modes'])}, {r['files']} files"
 
 
 def main() -> None:

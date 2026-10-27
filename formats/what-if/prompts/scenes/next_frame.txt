@@ -1,0 +1,1 @@
+A new scene for the same video, drawn exactly in the art style of the first attached image: the same line weight, palette, shading and character design. Any character from the attached images keeps the same face, hair, body and clothes. Scene: {state}. Keep the top 20% of the frame free of important detail for titles. No text, no letters, no logos, no watermark.

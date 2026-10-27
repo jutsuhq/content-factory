@@ -34,5 +34,25 @@ Copy `what-if/` and rename it; the folder name is the format id.
   bundles; nothing has to be registered.
 - `examples/` with at least one finished script that passes the schema.
 
+Prompts may differ per render mode: `prompts/<mode>/first_frame.txt` wins over `prompts/first_frame.txt`. A style
+preset may carry `props`, which go to the template as they are (the bundled one uses `text: sticker`).
+
+## A format from Claude
+
+The formats in this folder ship with the factory and are read-only. Anything else is the owner's own format, kept in
+the data folder (`data/formats/<id>/` in a checkout, the application-data folder in the app), and an agent adds one
+without touching the code:
+
+1. `catalog('new_format')` returns this file; `format_source(<id>)` returns every text file of the closest format.
+2. Write the new folder's files: change the schema, guide, prompts, styles and template for the new kind of video.
+3. `save_format(<id>, files)` sends the whole folder. The engine checks format.yaml and the stages each render mode
+   names, the schema, the guide, `template/index.ts` and every example against the schema; it keeps nothing when a
+   check fails, and a working earlier version stays in place.
+4. `create(..., format=<id>)` works at once, and the app lists the format in New video.
+
+From a terminal: `factory format show what-if my-folder/`, edit, then `factory format save my-show my-folder/`.
+A template may import only from its own `template/` folder and the renderer's packages (remotion, react, three,
+@remotion/three, @react-three/fiber): the render stage bundles the episode's format's `template/` on its own.
+
 Nothing outside the format's folder may name it. `engine/tests/test_formats.py` checks that and runs every format
 through blank, check and compose. To preview the template, run `npm run studio` in `render/`.

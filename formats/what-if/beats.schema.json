@@ -51,6 +51,7 @@
     "render_mode": {
       "enum": [
         "states",
+        "scenes",
         "drawn"
       ],
       "default": "states",
@@ -183,9 +184,6 @@
         }
       },
       "else": {
-        "required": [
-          "camera"
-        ],
         "properties": {
           "beats": {
             "items": {
@@ -195,6 +193,26 @@
             }
           }
         }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "render_mode": {
+            "enum": [
+              "drawn",
+              "scenes"
+            ]
+          }
+        },
+        "required": [
+          "render_mode"
+        ]
+      },
+      "else": {
+        "required": [
+          "camera"
+        ]
       }
     }
   ]

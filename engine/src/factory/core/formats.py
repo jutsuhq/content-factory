@@ -1,17 +1,29 @@
-"""Formats: one folder per format under FORMATS, recognised by its format.yaml. The engine knows no format by name:
-it lists the folders and reads the one a script names (beats.json `format`), else the default one."""
+"""Formats: one folder per format, recognised by its format.yaml: the ones shipped in FORMATS and the owner's own in
+OWN_FORMATS (added by an agent through the engine, see studio.formats). The engine knows no format by name: it lists
+the folders and reads the one a script names (beats.json `format`), else the default one."""
 
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import yaml
 
-from factory.core.paths import FORMATS
+from factory.core.paths import FORMATS, OWN_FORMATS
+
+
+def folders() -> dict[str, Path]:
+    """Every format's folder by id; a shipped format wins over an own one of the same name."""
+    found: dict[str, Path] = {}
+    for root in (OWN_FORMATS, FORMATS):
+        if root.is_dir():
+            # a dot folder is a version being saved or replaced (studio.formats.save), not a format
+            found |= {d.name: d for d in root.iterdir() if (d / "format.yaml").is_file() and d.name[0] != "."}
+    return found
 
 
 def ids() -> list[str]:
-    return sorted(d.name for d in FORMATS.iterdir() if (d / "format.yaml").is_file()) if FORMATS.is_dir() else []
+    return sorted(folders())
 
 
 def default_id() -> str:
@@ -27,10 +39,11 @@ def default_id() -> str:
 def load(fid: str | None = None) -> dict:
     """format.yaml of one format (the default one for None), with its id and folder."""
     fid = fid or default_id()
-    if fid not in ids():
+    d = folders().get(fid)
+    if not d:
         raise ValueError(f"unknown format {fid}; formats: {', '.join(ids())}")
-    d = FORMATS / fid
-    return {**yaml.safe_load((d / "format.yaml").read_text(encoding="utf-8")), "id": fid, "dir": d}
+    own = d.parent == OWN_FORMATS
+    return {**yaml.safe_load((d / "format.yaml").read_text(encoding="utf-8")), "id": fid, "dir": d, "own": own}
 
 
 def examples(fmt: dict) -> list:

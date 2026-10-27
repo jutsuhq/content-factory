@@ -29,6 +29,15 @@ render_modes:                         # the first is the default
             placeholder: "locked wide shot of a seaside village at night, room at the top for titles" }
       beat:
         - { key: state, label: Frame, kind: textarea, required: true, english: true, placeholder: "What the frame shows (in English)" }
+  scenes:
+    title: Scenes
+    hint: a new scene per beat in one style, with the same characters, hard cuts
+    icon: image
+    stages: [frames, depth, tts, align, render, qa]
+    style: presets
+    fields:
+      beat:
+        - { key: state, label: Scene, kind: textarea, required: true, english: true, placeholder: "What the scene shows (in English)" }
   drawn:
     title: Drawn
     hint: Claude draws each beat as an animated SVG, free

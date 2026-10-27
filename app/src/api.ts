@@ -81,6 +81,7 @@ export type Format = {
   fields?: FieldSet // shared by every render mode
   duration_seconds: { min: number; default: number; max: number }
   caption?: string // post caption, {field} filled from the script
+  own?: boolean // added by the owner or an agent, not shipped with the factory
 }
 
 /** The format a script uses (the default one, listed first, when it names none), its render mode and fields. */
@@ -214,7 +215,8 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
 const post = <T,>(path: string, body?: unknown) => call<T>(path, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) })
 const put = <T,>(path: string, body: unknown) => call<T>(path, { method: 'PUT', body: JSON.stringify(body) })
 
-let formatsOnce: Promise<Format[]> | null = null
+// Formats change only when an agent adds one: callers on one screen share a fetch, a later screen sees new ones.
+let formatsCache: { at: number; list: Promise<Format[]> } | null = null
 
 export const api = {
   health: () => call<{ ok: boolean; root: string; version: string }>('/api/health'),
@@ -231,8 +233,14 @@ export const api = {
   removeRef: (id: string, cid: string, ref: string) =>
     call<Project>(`/api/projects/${id}/cast/${cid}/refs/${ref.split('/').pop()}`, { method: 'DELETE' }),
   episode: (slug: string) => call<Episode>(`/api/episodes/${slug}`),
-  /** Every format, the default one first. Formats are files shipped with the engine, so one fetch serves the session. */
-  formats: () => (formatsOnce ??= call<Format[]>('/api/formats').catch((e) => { formatsOnce = null; throw e })),
+  /** Every format, shipped and own, the default one first. */
+  formats: () => {
+    if (!formatsCache || Date.now() - formatsCache.at > 5000) {
+      const list = call<Format[]>('/api/formats').catch((e) => { formatsCache = null; throw e })
+      formatsCache = { at: Date.now(), list }
+    }
+    return formatsCache.list
+  },
   styles: (format?: string) => call<Style[]>(`/api/styles${format ? `?format=${encodeURIComponent(format)}` : ''}`),
   music: () => call<Track[]>('/api/music'),
   stylePreview: (id: string, format?: string) => post<{ job: number }>(`/api/styles/${id}/preview${format ? `?format=${encodeURIComponent(format)}` : ''}`),
