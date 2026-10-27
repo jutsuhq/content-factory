@@ -1,0 +1,17 @@
+# CC0 tracks from OpenGameArt that suit "What if" shorts; `factory music fetch --starter` imports them all.
+# moods are the words the script writer and the auto-pick match against.
+- {slug: awestruck, moods: [wonder, awe, curious, discovery, science], default: true}
+- {slug: background-space-track, moods: [space, cosmic, wonder, calm, planets]}
+- {slug: another-space-background-track, moods: [space, mysterious, night, calm]}
+- {slug: deep-space-array, moods: [tense, suspense, space, dark, unknown]}
+- {slug: darkest-hour, moods: [dark, tense, disaster, ominous, end]}
+- {slug: ends-of-the-earth, moods: [epic, apocalypse, disaster, dramatic, end]}
+- {slug: aftermath-0, moods: [sad, aftermath, empty, melancholy, ruin]}
+- {slug: adventure-intro-title-cinematic-epic, moods: [epic, cinematic, adventure, grand, history]}
+- {slug: destiny-formation, moods: [epic, rising, dramatic, scale, future]}
+- {slug: beautiful-forest-orchestra, moods: [nature, beautiful, calm, animals, forest]}
+- {slug: emotional-piano-loop, moods: [emotional, piano, sad, human, reflective]}
+- {slug: calm-ambient-2-synthwave-15k, moods: [calm, ambient, technology, city, future]}
+- {slug: feel-good-island, moods: [happy, upbeat, fun, ocean, summer]}
+- {slug: chill-lofi-inspired, moods: [chill, lofi, everyday, food, home]}
+- {slug: cinematic-percussion-loop, moods: [tension, countdown, rising, action, speed]}

@@ -1,0 +1,83 @@
+{
+  "language": "en",
+  "title": "What if every human vanished?",
+  "hook": "What if every human vanished today?",
+  "axis": {
+    "name": "time",
+    "unit": "label"
+  },
+  "style": "lowpoly-city",
+  "render_mode": "states",
+  "voice": true,
+  "loop": true,
+  "music": "aftermath-0",
+  "camera": "locked high three-quarter aerial view of a low-poly city crossroads: a wide intersection with cars, a subway entrance with stairs in the lower left, tall glass skyscrapers on both sides, a steel suspension bridge over a river in the far right distance, two power plant cooling towers on the far horizon, open sky across the top third left free for titles",
+  "objection": "Wait, don't nuclear plants explode?",
+  "cta": "Which building would last the longest?",
+  "beats": [
+    {
+      "counter": "HOUR 1",
+      "caption": "8 billion people, gone",
+      "vo": "What if every human vanished today? All eight billion of us, in one second.",
+      "state": "bright midday, cars stopped in the middle of the intersection with doors open, traffic lights lit, shop windows lit, no people anywhere",
+      "fact_source": "UN World Population Prospects 2024: about 8.2 billion people",
+      "seconds": 6
+    },
+    {
+      "counter": "DAY 2",
+      "caption": "The subway floods",
+      "vo": "Day two. The power is out, so New York's subway pumps stop. Thirteen million gallons a day now flood the tunnels.",
+      "state": "grey overcast day, every window and traffic light dark, water pouring up out of the subway entrance and spreading across the street",
+      "fact_source": "MTA: subway pumps remove about 13 million gallons of water a day; Alan Weisman, The World Without Us (2007)",
+      "seconds": 8
+    },
+    {
+      "counter": "WEEK 1",
+      "caption": "Wait, don't reactors explode?",
+      "vo": "Wait, don't nuclear plants explode? Not like bombs. But with no one cooling them, many of the four hundred reactors melt down.",
+      "state": "hazy orange dusk, thin plumes of smoke rising from the two cooling towers on the horizon, the flooded street shining, birds on the cars",
+      "fact_source": "IAEA PRIS: about 415 operational power reactors in 2024; Weisman, The World Without Us",
+      "seconds": 8
+    },
+    {
+      "counter": "YEAR 1",
+      "caption": "Weeds break the asphalt",
+      "vo": "Year one. Weeds push through every crack in the asphalt. Deer walk down the empty avenue.",
+      "state": "fresh spring morning, green weeds and grass in every crack of the road, dusty cars with flat tires, two deer standing in the middle of the intersection",
+      "fact_source": "Weisman, The World Without Us: freeze-thaw cycles crack pavement within the first winters",
+      "seconds": 7
+    },
+    {
+      "counter": "YEAR 20",
+      "caption": "Trees grow through cars",
+      "vo": "Year twenty. Trees grow straight through the cars. Vines climb the towers and windows start to fall out.",
+      "state": "summer, young trees growing through rusting cars, the road covered in grass, green vines on the skyscraper walls, many broken windows",
+      "fact_source": "Weisman, The World Without Us; History Channel, Life After People (2008)",
+      "seconds": 7
+    },
+    {
+      "counter": "YEAR 100",
+      "caption": "Skyscrapers start falling",
+      "vo": "Year one hundred. Steel rusts from the inside. The first skyscrapers lean, crack and fall.",
+      "state": "autumn, dense forest filling the streets, one skyscraper collapsed into rubble, another leaning with its top broken, brown rust streaks on the remaining towers",
+      "fact_source": "Life After People (2008): unmaintained steel-frame buildings fail within decades to centuries",
+      "seconds": 7
+    },
+    {
+      "counter": "YEAR 300",
+      "caption": "The bridge snaps",
+      "vo": "Year three hundred. The great steel bridge finally snaps and drops into the river.",
+      "state": "stormy grey day, the suspension bridge broken in the middle with its deck fallen into the river, most skyscrapers reduced to stumps covered in trees",
+      "fact_source": "Weisman, The World Without Us: large steel bridges fall within about 300 years",
+      "seconds": 6
+    },
+    {
+      "counter": "YEAR 10,000",
+      "caption": "Only stone remains",
+      "vo": "Ten thousand years later, only stone and glass remain. [pause 0.4] And it all started today, when every human vanished.",
+      "state": "golden sunset, a lush forest and a meadow where the city stood, a few moss-covered stone ruins, the bridge and cooling towers gone, a herd of wild horses grazing",
+      "fact_source": "Weisman, The World Without Us: stone, glass, bronze and plastics outlast everything else",
+      "seconds": 8
+    }
+  ]
+}

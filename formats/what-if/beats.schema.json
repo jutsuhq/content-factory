@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "What-if episode script",
+  "type": "object",
+  "required": [
+    "hook",
+    "axis",
+    "style",
+    "beats",
+    "cta",
+    "loop"
+  ],
+  "properties": {
+    "format": {
+      "type": "string",
+      "description": "format id: the folder under formats/"
+    },
+    "language": {
+      "type": "string",
+      "default": "en"
+    },
+    "hook": {
+      "type": "string",
+      "maxLength": 90
+    },
+    "axis": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "enum": [
+            "time",
+            "depth",
+            "speed",
+            "scale",
+            "steps",
+            "count"
+          ]
+        },
+        "unit": {
+          "type": "string"
+        }
+      }
+    },
+    "style": {
+      "type": "string",
+      "description": "preset id from styles.yaml; in drawn mode the paint look: gouache, ink, crayon or clean"
+    },
+    "render_mode": {
+      "enum": [
+        "states",
+        "drawn"
+      ],
+      "default": "states",
+      "description": "states: AI frames edited from one another; drawn: an SVG scene per beat, no image generation"
+    },
+    "camera": {
+      "type": "string",
+      "description": "locked composition shared by every state frame"
+    },
+    "voice": {
+      "type": "boolean",
+      "default": false
+    },
+    "beats": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "required": [
+          "counter",
+          "caption",
+          "seconds"
+        ],
+        "properties": {
+          "counter": {
+            "type": "string",
+            "description": "HUD value, e.g. 'DAY 1', '2,362 KM', '×16'"
+          },
+          "caption": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "vo": {
+            "type": "string",
+            "description": "spoken line, only when voice is true; numbers written as words"
+          },
+          "state": {
+            "type": "string",
+            "description": "what changed in the world vs the previous beat, in English for the image model"
+          },
+          "moving_layers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "objects to cut out and animate"
+          },
+          "particles": {
+            "enum": [
+              "none",
+              "rain",
+              "snow",
+              "dust",
+              "debris",
+              "sparks",
+              "swarm"
+            ]
+          },
+          "seconds": {
+            "type": "number",
+            "minimum": 2,
+            "maximum": 15
+          },
+          "fact_source": {
+            "type": "string"
+          },
+          "svg": {
+            "type": "string",
+            "description": "drawn mode: SVG markup without the outer <svg>, viewBox 0 0 1080 1920; data-depth, data-bob, data-sway, data-spin, data-pulse, data-drift, data-flicker on <g> animate it"
+          },
+          "focus": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "minItems": 2,
+            "maxItems": 2,
+            "description": "[x, y] of the main subject, 0..1 of the frame: punch-in shots centre here"
+          }
+        }
+      }
+    },
+    "objection": {
+      "type": "string"
+    },
+    "cta": {
+      "type": "string"
+    },
+    "loop": {
+      "type": "boolean",
+      "default": true
+    },
+    "music": {
+      "type": "string",
+      "description": "track id from music/library.yaml, 'none', or mood words to match a track"
+    },
+    "style_prompt": {
+      "type": "string",
+      "description": "custom style text; overrides the preset prompt"
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 120
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "render_mode": {
+            "const": "drawn"
+          }
+        },
+        "required": [
+          "render_mode"
+        ]
+      },
+      "then": {
+        "properties": {
+          "beats": {
+            "items": {
+              "required": [
+                "svg"
+              ]
+            }
+          }
+        }
+      },
+      "else": {
+        "required": [
+          "camera"
+        ],
+        "properties": {
+          "beats": {
+            "items": {
+              "required": [
+                "state"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

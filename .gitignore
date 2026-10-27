@@ -1,0 +1,23 @@
+# everything the engine writes in a checkout: episodes, profile, keys, models, tools, music, the queue
+data/
+
+# Python
+.venv/
+__pycache__/
+
+# Node packages and build output
+node_modules/
+render/out/
+app/dist/
+app/src-tauri/target/
+app/src-tauri/gen/
+
+# raw style previews before cropping
+formats/*/previews/*-raw.png
+
+# local tool settings
+.mcp.json
+.claude/
+
+# private image workers, never published
+engine/src/factory/providers/image/private/

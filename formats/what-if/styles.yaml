@@ -1,0 +1,38 @@
+# Style presets for state frames. `prompt` goes first in every style-frame prompt.
+# `preview` is a path under the format folder, made by the "style preview" job in the app.
+toon-homestead:
+  title: Toon 3D
+  tags: [toon 3D, cozy village, warm light]
+  prompt: >-
+    Stylized toon 3D render, vertical composition. Clean simple shapes, smooth materials,
+    slightly rounded geometry, soft rim light, cinematic depth.
+lowpoly-city:
+  title: Low-poly City
+  tags: [low-poly 3D, city from above, soft shadows]
+  prompt: >-
+    Low-poly 3D render of a city, flat-shaded faceted geometry, muted pastel palette,
+    soft global illumination, tilt-shift miniature feel, clean readable shapes.
+pixel-night:
+  title: Pixel Art
+  tags: [16-bit, retro game, neon]
+  prompt: >-
+    16-bit pixel art, crisp pixels without anti-aliasing, limited retro game palette,
+    neon night lighting, side-on game scene composition.
+haze-city:
+  title: Haze City
+  tags: [realistic 3D, grey haze, streets]
+  prompt: >-
+    Realistic 3D render of grey hazy city streets, overcast diffuse light, atmospheric haze,
+    muted desaturated colours, wide street-level view.
+cutaway-lab:
+  title: Cutaway
+  tags: [infographic, cutaway, diagram]
+  prompt: >-
+    Clean isometric cutaway illustration, cross-section revealing layers inside,
+    labeled-diagram look without any text, bright flat colours on a light background.
+space-epic:
+  title: Space Epic
+  tags: [cinematic realism, planets, scale]
+  prompt: >-
+    Cinematic photoreal space scene, dramatic scale, volumetric light, deep black space,
+    rich planet colours, wide establishing composition.

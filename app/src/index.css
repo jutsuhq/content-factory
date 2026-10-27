@@ -1,0 +1,83 @@
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+@import "@fontsource/barlow-condensed/800.css";
+@import "tailwindcss";
+
+/* Near-black, white-glass surfaces, capsule controls, condensed uppercase titles.
+   Orange `accent` is for everything clickable; the orange-to-pink `brand` gradient (the logo) is for the app
+   doing its trick (brand mark, progress, hero glow) and never goes on a control. */
+@theme {
+  --color-bg: #060607;
+  --color-panel: rgb(255 255 255 / 0.04);
+  --color-raised: rgb(255 255 255 / 0.08);
+  --color-line: rgb(255 255 255 / 0.09);
+  --color-muted: rgb(255 255 255 / 0.6);
+  --color-faint: rgb(255 255 255 / 0.48);
+  --color-text: #ffffff;
+  --color-accent: #ff6a3d;
+  --color-accent-2: #ff3d77;
+  --color-accent-ink: #0a0a0a;
+  --color-ok: #3ddc84;
+  --color-warn: #ffb547;
+  --color-bad: #ff5d5d;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Geist Variable", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "Arial Narrow", ui-sans-serif, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+@utility bg-brand {
+  background-image: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+}
+@utility text-brand {
+  background-image: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+  background-clip: text;
+  color: transparent;
+}
+@utility eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+.font-display { font-weight: 800; text-transform: uppercase; letter-spacing: 0.01em; line-height: 1; }
+::selection { background: color-mix(in oklab, var(--color-accent) 40%, transparent); }
+* { scrollbar-width: thin; scrollbar-color: rgb(255 255 255 / 0.12) transparent; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Duotone icons (src/icons.tsx): the soft layer, Phosphor's opacity="0.2" path or our .duo shape, takes the accent.
+   On an accent button it falls back to the button's ink; in the sidebar only the open section is tinted. */
+svg [opacity="0.2"],
+svg .duo {
+  fill: var(--color-accent);
+  opacity: 0.32;
+}
+.bg-accent svg [opacity="0.2"],
+.bg-accent svg .duo,
+nav svg .duo {
+  fill: currentColor;
+  opacity: 0.16;
+}
+nav svg.nav-active {
+  color: var(--color-accent);
+}
+nav svg.nav-active .duo {
+  fill: var(--color-accent);
+  opacity: 1;
+}
+nav svg.nav-active .ink {
+  stroke: var(--color-accent-ink);
+  fill: var(--color-accent-ink);
+}
+nav svg.nav-active path.ink:not([fill]) {
+  fill: none;
+}

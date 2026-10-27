@@ -1,0 +1,25 @@
+name: Bug report
+description: Something in the app or the engine does not work
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: The failed job's log from the Queue screen, or the end of engine.log. Remove API keys and personal paths.
+      render: text
+  - type: input
+    id: system
+    attributes:
+      label: System
+      description: OS and chip, app version (Settings › About), image provider.
+      placeholder: macOS 26, M3, 0.1.0, OpenAI
+    validations:
+      required: true

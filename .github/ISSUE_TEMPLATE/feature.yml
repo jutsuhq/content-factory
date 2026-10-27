@@ -1,0 +1,11 @@
+name: Feature or format idea
+description: A new format, style, provider or improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: What you want to make and why the current formats or providers don't cover it. A link to a reference video helps.
+    validations:
+      required: true

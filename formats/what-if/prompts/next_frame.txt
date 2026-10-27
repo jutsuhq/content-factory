@@ -1,0 +1,1 @@
+Edit the attached image. Keep the exact same camera, framing, composition, environment layout, main objects and art style, pixel-aligned. Change only the state of the world: {state}. Keep the top 20% of the frame free of important detail for titles. No text, no letters, no logos, no watermark.

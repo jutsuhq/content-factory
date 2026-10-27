@@ -1,0 +1,58 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Content Factory",
+  "version": "0.1.0",
+  "identifier": "studio.jutsu.contentfactory",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Content Factory",
+        "width": 1360,
+        "height": 880,
+        "minWidth": 1024,
+        "minHeight": 680,
+        "resizable": true,
+        "theme": "Dark",
+        "backgroundColor": "#0b0b0c"
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "android": {
+      "debugApplicationIdSuffix": ".debug"
+    },
+    "resources": {
+      "../../engine/pyproject.toml": "content-factory/engine/pyproject.toml",
+      "../../engine/uv.lock": "content-factory/engine/uv.lock",
+      "../../engine/src/factory/": "content-factory/engine/src/factory/",
+      "../../formats/": "content-factory/formats/",
+      "../../render/package.json": "content-factory/render/package.json",
+      "../../render/package-lock.json": "content-factory/render/package-lock.json",
+      "../../render/tsconfig.json": "content-factory/render/tsconfig.json",
+      "../../render/remotion.config.ts": "content-factory/render/remotion.config.ts",
+      "../../render/src/": "content-factory/render/src/"
+    },
+    "category": "Video",
+    "shortDescription": "Open-source AI faceless video generator",
+      "longDescription": "Make faceless short videos for TikTok, YouTube Shorts and Instagram Reels on your own Mac: AI frames, motion, voiceover, subtitles and music.",
+    "copyright": "MIT License"
+  }
+}

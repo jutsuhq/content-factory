@@ -1,0 +1,50 @@
+# The bundled reference format. Everything here is read by the engine and the app; the rules an author writes by are
+# in guide.md. Field keys: label, kind (text, textarea or svg), placeholder, required (filled before generating),
+# english (an image prompt, so English only), translate (rewritten in another-language copies).
+title: What if
+description: One locked world that changes along one axis (time, depth, speed, scale), a big counter on screen, one fact per beat, a loop at the end.
+template: WhatIf                      # Remotion composition id, exported by template/index.ts
+duration_seconds: { min: 30, default: 60, max: 120 }   # viral references run 60-100 s
+caption: "{hook} 🤯\n\n#whatif #facts #science #fyp"   # post caption; {field} is the script's value
+
+fields:                               # in every render mode
+  script:
+    - { key: hook, label: "Hook (first screen)", kind: text, required: true, translate: true }
+    - { key: cta, label: Call to action, kind: text, translate: true }
+    - { key: objection, label: "Objection (mid-video)", kind: text, translate: true }
+  beat:
+    - { key: counter, label: Counter, kind: text, required: true, translate: true, placeholder: DAY 1 }
+    - { key: caption, label: Caption, kind: text, required: true, translate: true, placeholder: "Caption, up to 6 words" }
+
+render_modes:                         # the first is the default
+  states:
+    title: AI frames
+    hint: one image per beat from your image provider
+    icon: image
+    stages: [frames, depth, transitions, tts, align, render, qa]
+    style: presets                    # a preset from styles.yaml, or a custom description
+    fields:
+      script:
+        - { key: camera, label: "Shot (overall composition, in English)", kind: textarea, required: true, english: true,
+            placeholder: "locked wide shot of a seaside village at night, room at the top for titles" }
+      beat:
+        - { key: state, label: Frame, kind: textarea, required: true, english: true, placeholder: "What the frame shows (in English)" }
+  drawn:
+    title: Drawn
+    hint: Claude draws each beat as an animated SVG, free
+    icon: pen
+    stages: [tts, align, render, qa]
+    style:                            # the paint look the template applies
+      looks:
+        - { id: gouache, hint: soft paint }
+        - { id: ink, hint: pen lines }
+        - { id: crayon, hint: rough texture }
+        - { id: clean, hint: flat vector }
+    fields:
+      beat:
+        - { key: svg, label: Scene, kind: svg, required: true, placeholder: 'Scene as SVG, 1080×1920: <g data-depth="0">…</g>' }
+
+blank:                                # the skeleton of an empty script; required fields are added empty
+  script: { axis: { name: time }, cta: "", loop: true }
+  beat: {}
+text_limits: { counter: 12, caption: 60, hook: 60, subtitle: 44 }   # characters before text overflows the 1080 px frame (font sizes in the template)

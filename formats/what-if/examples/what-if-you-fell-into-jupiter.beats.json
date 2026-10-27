@@ -1,0 +1,83 @@
+{
+  "language": "en",
+  "title": "What if you fell into Jupiter?",
+  "hook": "What if you fell into Jupiter?",
+  "axis": {
+    "name": "depth",
+    "unit": "km"
+  },
+  "style": "space-epic",
+  "render_mode": "states",
+  "voice": true,
+  "loop": true,
+  "music": "deep-space-array",
+  "camera": "locked vertical shot from slightly above and behind a lone astronaut in a white spacesuit with an orange backpack, falling face-down with arms and legs spread, small in the exact center of the frame, the surroundings filling the frame to every edge, the top third of the frame darker and calmer, left free for titles",
+  "objection": "Wait, when do you hit the ground?",
+  "cta": "How deep would you make it?",
+  "beats": [
+    {
+      "counter": "−5,000 KM",
+      "caption": "1,321 Earths fit inside",
+      "vo": "What if you fell into Jupiter? It's so big that one thousand three hundred Earths would fit inside.",
+      "state": "deep black space full of stars, the striped orange, cream and brown disk of Jupiter filling the lower two thirds of the frame, the Great Red Spot visible below the astronaut, warm orange light on the suit",
+      "fact_source": "NASA Jupiter facts: about 1,321 Earths would fit inside Jupiter",
+      "seconds": 8
+    },
+    {
+      "counter": "ENTRY",
+      "caption": "170,000 km/h fireball",
+      "vo": "You hit the air at a hundred seventy thousand kilometers per hour. It turns to plasma, hotter than the Sun's surface. Say your suit survives.",
+      "state": "the astronaut wrapped in a blinding orange-white plasma shell, long streaks of fire trailing up toward the top of the frame, the striped cloud tops close below, black sky above",
+      "fact_source": "NASA Galileo probe (1995): entry at 47.4 km/s (about 170,000 km/h), shock plasma about twice as hot as the Sun's surface",
+      "seconds": 11
+    },
+    {
+      "counter": "0 KM",
+      "caption": "Ammonia ice, −110 °C",
+      "vo": "Zero kilometers, the cloud tops. White clouds of ammonia ice, at a hundred and ten degrees below zero.",
+      "state": "the fire gone, the astronaut falling through bright white and pale cream ammonia ice clouds, tiny ice crystals glittering around the suit, a thin layer of frost on the suit, pale blue haze above",
+      "fact_source": "NASA: Jupiter's top cloud layer is ammonia ice; about -110 °C at the 1 bar level",
+      "seconds": 8
+    },
+    {
+      "counter": "80 KM",
+      "caption": "Water clouds and lightning",
+      "vo": "Eighty kilometers down, clouds of water. Lightning flashes all around you, and it's getting warmer.",
+      "state": "dark blue-grey storm clouds of water vapor all around, several bright branching lightning bolts lighting the clouds from inside, rain droplets streaking past the astronaut",
+      "fact_source": "NASA Juno: lightning in Jupiter's water clouds; water clouds lie roughly 50-100 km below the cloud tops",
+      "seconds": 7
+    },
+    {
+      "counter": "150 KM",
+      "caption": "NASA's probe died here",
+      "vo": "A hundred fifty kilometers. This is where NASA's Galileo probe went silent: twenty three times Earth's pressure, a hundred fifty degrees.",
+      "state": "thick amber-brown haze, dim orange light from below, the astronaut's suit glowing faintly red with heat, steam rising off it, a small broken metal probe tumbling in the haze beside the astronaut",
+      "fact_source": "NASA: the Galileo probe transmitted for 58 minutes, down to about 150 km, 23 bar and 153 °C",
+      "seconds": 10
+    },
+    {
+      "counter": "1,000 KM",
+      "caption": "Wait, where's the ground?",
+      "vo": "Wait, when do you hit the ground? Never. Jupiter has no surface. The gas just gets thicker, until it's a hot ocean.",
+      "state": "a dense dark-red glowing fluid all around, no clouds, slow swirling currents, the astronaut suspended and sinking slowly, a deep red glow from far below",
+      "fact_source": "NASA: Jupiter has no solid surface; gas grades into a hot, dense liquid",
+      "seconds": 10
+    },
+    {
+      "counter": "20,000 KM",
+      "caption": "Hydrogen turns into metal",
+      "vo": "Twenty thousand kilometers. The pressure is over a million times Earth's. Hydrogen turns into a liquid metal.",
+      "state": "a shimmering silvery liquid metal ocean all around, mirror-like rippling surfaces reflecting orange light, electric blue sparks crackling through it, the astronaut's suit crumpled and cracked",
+      "fact_source": "NASA Juno: below about 1-2 million bar, hydrogen becomes liquid metallic hydrogen",
+      "seconds": 8
+    },
+    {
+      "counter": "70,000 KM",
+      "caption": "Core: 24,000 °C",
+      "vo": "The core: twenty four thousand degrees, four times hotter than the Sun's surface. So, what if you fell into Jupiter?",
+      "state": "a blinding white-orange glowing core filling the bottom of the frame, intense heat waves, only a tiny dark silhouette of the astronaut left in the center, dissolving into the light",
+      "fact_source": "NASA: Jupiter's core temperature is about 24,000 °C (43,000 °F); the Sun's surface is about 5,500 °C",
+      "seconds": 9
+    }
+  ]
+}
