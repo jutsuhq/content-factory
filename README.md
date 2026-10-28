@@ -18,7 +18,7 @@ made on your own Mac. Free and open source: no subscription, no credits, no wate
 [![MCP](https://img.shields.io/badge/MCP-server-d97757?style=flat-square)](#claude-and-mcp)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-22c55e?style=flat-square)](CONTRIBUTING.md)
 
-[**Quick start**](#quick-start) &nbsp;·&nbsp; [How it works](#how-it-works) &nbsp;·&nbsp; [vs Higgsfield](#open-source-alternative-to-higgsfield-content-factory) &nbsp;·&nbsp; [Claude and MCP](#claude-and-mcp) &nbsp;·&nbsp; [FAQ](#faq) &nbsp;·&nbsp; [Architecture](docs/architecture.md) &nbsp;·&nbsp; [Contributing](CONTRIBUTING.md)
+[**Quick start**](#quick-start) &nbsp;·&nbsp; [How it works](#how-it-works) &nbsp;·&nbsp; [vs Higgsfield](#open-source-alternative-to-higgsfield-content-factory) &nbsp;·&nbsp; [vs MoneyPrinterTurbo](#compared-with-moneyprinterturbo-and-short-video-maker) &nbsp;·&nbsp; [Claude and MCP](#claude-and-mcp) &nbsp;·&nbsp; [FAQ](#faq) &nbsp;·&nbsp; [Architecture](docs/architecture.md) &nbsp;·&nbsp; [Contributing](CONTRIBUTING.md)
 
 </div>
 
@@ -94,6 +94,28 @@ yourself.
 
 Content Factory is an independent project, not affiliated with or endorsed by Higgsfield AI. Higgsfield is a
 trademark of its owner.
+
+## Compared with MoneyPrinterTurbo and short-video-maker
+
+[MoneyPrinterTurbo](https://github.com/harry0703/MoneyPrinterTurbo) and
+[short-video-maker](https://github.com/gyoridavid/short-video-maker) are the best-known open-source faceless video
+generators. Both cut a voiceover over background footage, mostly stock video from Pexels. Content Factory draws every
+beat instead: one AI still per beat in one style, so the same place, character and camera carry through the video
+and only the state of the world changes.
+
+| | Content Factory | MoneyPrinterTurbo | short-video-maker |
+|---|---|---|---|
+| Visuals | an AI still per beat in one style, animated on your Mac; or SVG scenes drawn by Claude | stock footage (Pexels, Pixabay, Coverr), your own clips, or AI video and image providers | stock video from Pexels |
+| Script | you or an MCP agent, checked against the format's schema | written by an LLM from a topic, or your own | your text, scene by scene |
+| Voice | Kokoro (English), Vosk (Russian), on device | Edge TTS, Azure, ElevenLabs, Kokoro and others | Kokoro, English only |
+| Subtitles | word by word, aligned with Whisper | yes, styled | Whisper captions |
+| Formats | a folder per format (schema, guide, prompts, styles, Remotion template); agents can add one | one generic pipeline | one generic pipeline |
+| Interface | Mac app, MCP server, HTTP API, `factory` CLI | web UI, API, CLI | MCP and REST server in Docker |
+| Runs on | macOS, Apple silicon | Windows, macOS, Linux | Docker |
+| Posting | never; you accept and export each video | can publish to TikTok, Instagram and YouTube Shorts | no |
+
+Pick MoneyPrinterTurbo for footage-based videos on any OS, short-video-maker for an n8n or REST pipeline over stock
+video, and Content Factory when the video is a story that needs its own consistent world, such as *What if*.
 
 ## What it does
 
@@ -187,7 +209,7 @@ tools, one shared job queue. `uv run factory --help` lists them all.
 
 ## Claude and MCP
 
-`factory mcp` is an MCP server over stdio. It talks to the running engine (and starts it if needed), so the app and
+Content Factory is an MCP server for the whole AI video pipeline, from script to rendered video. `factory mcp` is an MCP server over stdio. It talks to the running engine (and starts it if needed), so the app and
 the agent see the same queue. The factory never writes scripts itself: the agent lists the formats and reads one's
 rules with `catalog('format')`, writes the script and passes it to `create` with the format id.
 
