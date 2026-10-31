@@ -1,4 +1,5 @@
-"""The MCP tools. Eleven of them, each answering in a few lines of text; see the package docstring for the rules."""
+"""The MCP tools (eleven of them) and the make-video prompt, each answering in a few lines of text; see the package
+docstring for the rules."""
 
 from __future__ import annotations
 
@@ -10,7 +11,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.utilities.types import Image
 from mcp_types import ToolAnnotations
 
-from factory.core import FORMATS
+from factory.core import FORMATS, ROOT
 from factory.mcp import engine, view
 from factory.mcp.engine import EngineError
 
@@ -23,8 +24,26 @@ the script, edit_script on feedback -> run('approve') -> job(id) until done -> e
 the quality check -> accept once the owner is happy with it. Posting is the owner's job: give them the file path.
 A video no format fits: make a new format. catalog('new_format') says how, format_source gives a format's files to
 start from, save_format checks and adds it; it is usable at once, in the app too.
+Before the first video of a session read catalog('skill'): how to pick an idea, the script rules (61 s or more,
+originality on a channel) and the checks before posting.
 Long work runs in the engine's queue; job(id) waits for it (up to 50 s per call), never poll faster.
 Texts are in the episode's language; the image prompt fields the format's guide marks as English stay in English."""
+
+SKILL = ROOT / "skills" / "make-video" / "SKILL.md"  # how to make a video well, for any MCP client
+
+
+def _skill() -> str:
+    """The make-video skill without its front matter: the same text Claude Code loads as a skill."""
+    text = SKILL.read_text(encoding="utf-8")
+    return text.split("---", 2)[2].strip() if text.startswith("---") else text
+
+
+# catalog kinds that are one text each
+TEXTS = {
+    "skill": _skill,
+    "new_format": lambda: (FORMATS / "README.md").read_text(encoding="utf-8"),
+    "projects": lambda: "\n\n".join(map(view.project, engine.call("GET", "/api/projects"))) or "no projects",
+}
 
 server = MCPServer("content-factory", instructions=INSTRUCTIONS)
 
@@ -263,7 +282,7 @@ def accept(slug: str, caption: str = "") -> str:
 
 @server.tool(annotations=READ, structured_output=False)
 def catalog(
-    kind: Literal["format", "new_format", "styles", "music", "voices", "projects"],
+    kind: Literal["skill", "format", "new_format", "styles", "music", "voices", "projects"],
     language: str = "en",
     format: str | None = None,
 ) -> str:
@@ -271,11 +290,10 @@ def catalog(
     formats (id — title: description), or the guide itself when there is only one. Read it before your first create.
     styles of a format (id — title, tags; the default format without one), music (id — moods), voices (language —
     engine, voice), projects (the owner's channels: brief, variants with their settings, cast with looks),
-    new_format (how a format is built, to make one when no format fits the video)."""
-    if kind == "projects":
-        return "\n\n".join(map(view.project, engine.call("GET", "/api/projects"))) or "no projects"
-    if kind == "new_format":
-        return (FORMATS / "README.md").read_text(encoding="utf-8")
+    new_format (how a format is built, to make one when no format fits the video), skill (how to make a video well:
+    the idea, the script rules, the checks and the pre-post checklist; read it before the first video)."""
+    if kind in TEXTS:
+        return TEXTS[kind]()
     if kind == "format":
         found = engine.call("GET", "/api/formats")
         if format or len(found) == 1:
@@ -329,6 +347,12 @@ def save_format(id: str, files: dict[str, str] | None = None, remove: bool = Fal
     except EngineError as e:
         return f"not saved: {e}"
     return f"saved {r['id']} — {r['title']}: render modes {', '.join(r['render_modes'])}, {r['files']} files"
+
+
+@server.prompt(name="make-video", description="Make a video with Content Factory, from idea to a file ready to post")
+def make_video(request: str = "") -> str:
+    """The make-video skill, with the owner's request when there is one."""
+    return _skill() + (f"\n\n## The request\n\n{request}" if request else "")
 
 
 def main() -> None:

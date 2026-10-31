@@ -219,16 +219,17 @@ claude mcp add -s user content-factory -- uv run --project /path/to/content-fact
 ```
 
 Tools: `status`, `episodes`, `episode`, `create`, `edit_script`, `run` (approve, rebuild, redo a frame, translate),
-`job`, `accept`, `catalog` (format, new_format, styles, music, voices, projects), `format_source`, `save_format`. Then ask Claude something like *"make a What if
+`job`, `accept`, `catalog` (skill, format, new_format, styles, music, voices, projects), `format_source`, `save_format`; prompt `make-video`. Then ask Claude something like *"make a What if
 video about falling into Jupiter, 70 seconds, space epic style"*, or *"two new videos for Tiny Town Tales, English
 variant, with Milo"*: `catalog('projects')` gives the channel's brief, variants and cast. When no format fits, Claude
 can bring a new one: it reads the closest format with `format_source`, writes its own (schema, guide, prompts,
 styles, Remotion template, an example) and `save_format` checks and adds it, ready in the app at once
 ([formats/README.md](formats/README.md)).
 
-The [`make-video`](skills/make-video/SKILL.md) skill walks Claude Code through a whole video: the idea test, the
-script rules, the checks on the result and a checklist before posting. Copy or link `skills/make-video` into
-`~/.claude/skills/`. The reasoning behind it, from picking an idea to staying original on a channel, is in
+The MCP server also carries the [`make-video`](skills/make-video/SKILL.md) skill: how to make a video well, from the
+idea test and the script rules to the checks on the result and a checklist before posting. Any MCP client gets it as
+the `make-video` prompt and as `catalog('skill')`, which the server's instructions tell the agent to read before the
+first video. The reasoning behind it, from picking an idea to staying original on a channel, is in
 [docs/playbook.md](docs/playbook.md).
 
 ## Repository layout
@@ -242,7 +243,7 @@ Each top-level folder is a module with its own README, so a change usually stays
 | [`render/`](render) | the Remotion project that renders any format's template | Node, Remotion |
 | [`app/`](app) | the desktop app that drives the engine | Tauri, React |
 | [`docs/`](docs) | architecture notes, the [playbook](docs/playbook.md) and README images | |
-| [`skills/`](skills) | a Claude Code skill for making videos with the MCP server | |
+| [`skills/`](skills) | the make-video skill, served by the MCP server | |
 
 Everything the engine writes in a checkout goes to `data/`, which git ignores.
 

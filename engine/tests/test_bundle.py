@@ -44,5 +44,6 @@ def test_the_bundle_carries_formats_and_the_renderer(tmp_path):
     repo = _bundle(tmp_path / "Resources")
     assert (repo / "engine" / "uv.lock").is_file()
     assert any((repo / "formats").glob("*/format.yaml"))
+    assert (repo / "skills" / "make-video" / "SKILL.md").is_file()  # the MCP server serves it
     for name in ("package.json", "package-lock.json", "tsconfig.json", "remotion.config.ts", "src/index.ts"):
         assert (repo / "render" / name).is_file(), name

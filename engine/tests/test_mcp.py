@@ -1,5 +1,6 @@
 import pytest
 
+from factory.mcp import server as tools
 from factory.mcp import view
 from factory.mcp.server import merge_script
 
@@ -50,3 +51,9 @@ def test_job_line_is_one_short_line():
     assert "\n" not in line and len(line) < 300
     running = {"id": 8, "kind": "stages", "slug": "moon", "status": "running", "progress": 0.42, "stage": "render"}
     assert view.job_line(running) == "job 8 stages moon · running 42% (render)"
+
+
+def test_the_skill_reaches_any_mcp_client_without_its_front_matter():
+    text = tools.catalog("skill")
+    assert text.startswith("# Make a video") and "61" in text
+    assert tools.make_video("a what-if about friction").endswith("a what-if about friction")

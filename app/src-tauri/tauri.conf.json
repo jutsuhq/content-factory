@@ -45,6 +45,7 @@
       "../../engine/README.md": "repo/engine/README.md",
       "../../engine/src/factory/": "repo/engine/src/factory/",
       "../../formats/": "repo/formats/",
+      "../../skills/": "repo/skills/",
       "../../render/package.json": "repo/render/package.json",
       "../../render/package-lock.json": "repo/render/package-lock.json",
       "../../render/tsconfig.json": "repo/render/tsconfig.json",
