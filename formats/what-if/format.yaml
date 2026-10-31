@@ -4,7 +4,7 @@
 title: What if
 description: One locked world that changes along one axis (time, depth, speed, scale), a big counter on screen, one fact per beat, a loop at the end.
 template: WhatIf                      # Remotion composition id, exported by template/index.ts
-duration_seconds: { min: 30, default: 60, max: 120 }   # viral references run 60-100 s
+duration_seconds: { min: 30, default: 65, max: 120 }   # over 61 s: creator programmes pay only past one minute
 caption: "{hook} 🤯\n\n#whatif #facts #science #fyp"   # post caption; {field} is the script's value
 
 fields:                               # in every render mode

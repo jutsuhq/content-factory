@@ -226,6 +226,11 @@ can bring a new one: it reads the closest format with `format_source`, writes it
 styles, Remotion template, an example) and `save_format` checks and adds it, ready in the app at once
 ([formats/README.md](formats/README.md)).
 
+The [`make-video`](skills/make-video/SKILL.md) skill walks Claude Code through a whole video: the idea test, the
+script rules, the checks on the result and a checklist before posting. Copy or link `skills/make-video` into
+`~/.claude/skills/`. The reasoning behind it, from picking an idea to staying original on a channel, is in
+[docs/playbook.md](docs/playbook.md).
+
 ## Repository layout
 
 Each top-level folder is a module with its own README, so a change usually stays inside one of them.
@@ -236,7 +241,8 @@ Each top-level folder is a module with its own README, so a change usually stays
 | [`formats/`](formats) | video formats as data: schema, guide, prompts, styles, render template, example scripts | YAML, JSON, React |
 | [`render/`](render) | the Remotion project that renders any format's template | Node, Remotion |
 | [`app/`](app) | the desktop app that drives the engine | Tauri, React |
-| [`docs/`](docs) | architecture notes and README images | |
+| [`docs/`](docs) | architecture notes, the [playbook](docs/playbook.md) and README images | |
+| [`skills/`](skills) | a Claude Code skill for making videos with the MCP server | |
 
 Everything the engine writes in a checkout goes to `data/`, which git ignores.
 
