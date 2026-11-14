@@ -4,10 +4,10 @@
 
 # Content Factory
 
-**Open-source AI faceless video generator for TikTok, YouTube Shorts and Instagram Reels.**<br>
-A free, local alternative to Higgsfield Content Factory: write a *What if* script, or let Claude write it,<br>
-and get a finished vertical video with AI frames, motion, voiceover, word-by-word subtitles and music,<br>
-made on your own Mac. Free and open source: no subscription, no credits, no watermark.<br>
+**Content Factory is a free, open-source faceless video generator for Apple silicon Macs,<br>
+and a local alternative to Higgsfield Content Factory.** It turns a script into a 30–120 s vertical video<br>
+for TikTok, Shorts or Reels from about 8 AI images a minute, with voiceover, subtitles and music.
+
 By [Jutsu Studio](https://jutsustudio.com/content-factory/), open-source Mac tools for AI video.
 
 <br>
@@ -24,6 +24,27 @@ By [Jutsu Studio](https://jutsustudio.com/content-factory/), open-source Mac too
 </div>
 
 <br>
+
+## At a glance
+
+| | |
+|---|---|
+| Platform | macOS on Apple silicon. No signed build yet: you build the app from source. Windows and Linux are planned |
+| Requirements | To build: uv, Node.js 20+, FFmpeg and Rust. First launch installs Remotion (about 1 GB), RIFE, Depth Anything V2 and the starter music |
+| License | MIT. Remotion, installed at setup, has its own license |
+| Cost per video | $0 from us: no subscription, credits or watermark. Drawn videos need nothing else; AI-frames videos pay your own image provider for about 8 images a minute |
+| Output | Vertical 1080×1920 video, 30–120 s (65 s by default), with narration, word-by-word subtitles, CC0 music and loudness at −14 LUFS |
+| Models | Images (your key): OpenAI GPT Image, Google Nano Banana, FLUX.1 Kontext on fal.ai. On the Mac: Kokoro voice (English) or Vosk (Russian), Whisper alignment, Depth Anything V2, RIFE |
+| Formats and styles | *What if*, plus your own as a folder; 6 style presets, or drawn SVG scenes with no images at all |
+| Install | `git clone https://github.com/jutsuhq/content-factory && cd content-factory/app && npm install && npx tauri build --bundles app` ([Quick start](#quick-start)) |
+| Agents | MCP server: `factory mcp` ([Claude and MCP](#claude-and-mcp)) |
+| Releases | [v0.1.0](https://github.com/jutsuhq/content-factory/releases) with three demo videos |
+| Website | [jutsustudio.com/content-factory](https://jutsustudio.com/content-factory/) |
+
+Compared with [Higgsfield Content Factory](#open-source-alternative-to-higgsfield-content-factory) and with
+[MoneyPrinterTurbo and short-video-maker](#compared-with-moneyprinterturbo-and-short-video-maker): see below. What
+Content Factory does not do: generate video with a video model, write the script itself, post for you, or run on
+Windows, Linux or Intel Macs yet.
 
 ## Demo
 
